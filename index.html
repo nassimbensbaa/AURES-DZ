@@ -41,232 +41,148 @@ const PRODUCT = {
 
 const finalPrice = PRODUCT.price * (1 - PRODUCT.discount / 100);
 
-// ========== التوكنات الجديدة (التي تعمل) ==========
-const TELEGRAM_TOKEN = "8654334809:AAGHZXjxwcDB0naVgJtYF0ZK2wuS-foI7C4";
-const TELEGRAM_CHAT_ID = "6765048627";
+// ========== ولايات الجزائر ==========
+const ALGERIA_STATES = ["الجزائر","وهران","قسنطينة","بجاية","البليدة","عنابة","سطيف","باتنة"];
 
-// ========== جميع ولايات الجزائر ==========
-const ALGERIA_STATES = [
-    "أدرار", "الشلف", "الأغواط", "أم البواقي", "باتنة", "بجاية", "بسكرة", "بشار",
-    "البليدة", "البويرة", "تمنراست", "تبسة", "تلمسان", "تيارت", "تيزي وزو",
-    "الجزائر", "الجلفة", "جيجل", "سطيف", "سعيدة", "سكيكدة", "سيدي بلعباس",
-    "عنابة", "قالمة", "قسنطينة", "المدية", "ميلة", "معسكر", "مستغانم",
-    "المسيلة", "وهران", "البيض", "إليزي", "برج بوعريريج", "بومرداس",
-    "الطارف", "تندوف", "تيسمسيلت", "الوادي", "خنشلة", "سوق أهراس", "تيبازة"
-];
-
-// ========== حساب سعر التوصيل ==========
+// ========== حساب التوصيل ==========
 function getShippingPrice(state, deliveryType) {
     if (!state) return 0;
-    const farStates = ["تندوف", "إليزي", "تمنراست", "أدرار"];
-    const nearStates = ["الجزائر", "وهران", "قسنطينة", "عنابة", "بجاية"];
-    let base = 450;
-    if (nearStates.includes(state)) base = 300;
-    if (farStates.includes(state)) base = 650;
-    return deliveryType === "home" ? base + 200 : base;
+    let base = 400;
+    if (deliveryType === "home") base += 200;
+    return base;
 }
 
-// ========== إرسال إلى التلغرام (مباشر) ==========
+// ========== إرسال إلى Vercel API ==========
 async function sendToTelegram(orderData) {
-    const message = `🌟 *طلب جديد من المتجر* 🌟
-━━━━━━━━━━━━━━━━━━━
-👤 *العميل:* ${orderData.firstName} ${orderData.lastName}
-📞 *الهاتف:* ${orderData.phone}
-📍 *الولاية:* ${orderData.state}
-🚚 *التوصيل:* ${orderData.deliveryType === 'office' ? '📦 مكتب' : '🏠 منزل'}
-💰 *سعر التوصيل:* ${orderData.shipping} دج
-💎 *المجموع الكلي:* ${Math.round(orderData.total)} دج
-━━━━━━━━━━━━━━━━━━━
-🛍️ *المنتج:* ${orderData.productName}
-📅 *التاريخ:* ${new Date().toLocaleString('ar-DZ')}`;
-
-    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
-    
     try {
-        const response = await fetch(url);
+        const response = await fetch("/api/order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderData)
+        });
+
         const result = await response.json();
-        console.log("رد التلغرام:", result);
+        console.log(result);
+
         return result.ok === true;
-    } catch (error) {
-        console.error("خطأ:", error);
+    } catch (err) {
+        console.error(err);
         return false;
     }
 }
 
-// ========== حالة التطبيق ==========
+// ========== الحالة ==========
 let formData = {
-    firstName: "", lastName: "", phone: "", wilaya: "", delivery: "office", loading: false, message: ""
+    firstName: "",
+    lastName: "",
+    phone: "",
+    wilaya: "",
+    delivery: "office",
+    loading: false,
+    message: ""
 };
 
-// ========== عرض الواجهة ==========
+// ========== الواجهة ==========
 function render() {
     const shipping = getShippingPrice(formData.wilaya, formData.delivery);
     const total = finalPrice + shipping;
-    
-    const html = `
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
-            <div class="bg-gradient-to-r from-orange-600 to-purple-700 p-6 text-center text-white">
-                <i class="fas fa-crown text-3xl mb-2"></i>
-                <h2 class="text-xl font-bold">متجر VIP</h2>
-                <p class="text-sm opacity-90">عروض حصرية | توصيل سريع</p>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-8 p-6 md:p-8">
-                <div class="text-center md:text-right space-y-5">
-                    <h1 class="text-4xl md:text-5xl font-black title-float">${PRODUCT.name}</h1>
-                    <div class="relative">
-                        <img src="${PRODUCT.image}" alt="product" class="w-full rounded-2xl shadow-xl" 
-                             onerror="this.src='https://placehold.co/500x400/1e293b/white?text=صورة+المنتج'">
-                        <div class="absolute -top-3 -right-3 bg-red-500 text-white px-4 py-2 rounded-full font-bold shadow-lg">
-                            -${PRODUCT.discount}% 🔥
-                        </div>
+
+    document.getElementById("root").innerHTML = `
+        <div class="bg-white rounded-3xl shadow-2xl p-6">
+
+            <h1 class="text-3xl font-bold text-center title-float mb-6">
+                ${PRODUCT.name}
+            </h1>
+
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <div>
+                    <img src="${PRODUCT.image}" class="rounded-2xl shadow">
+                    <p class="text-center mt-3 font-bold text-xl">${Math.round(finalPrice)} دج</p>
+                </div>
+
+                <div class="space-y-3">
+
+                    <input id="firstName" placeholder="الاسم" class="w-full p-3 rounded-xl bg-gray-50">
+                    <input id="lastName" placeholder="اللقب" class="w-full p-3 rounded-xl bg-gray-50">
+                    <input id="phone" placeholder="رقم الهاتف" class="w-full p-3 rounded-xl bg-gray-50">
+
+                    <select id="wilaya" class="w-full p-3 rounded-xl bg-gray-50">
+                        <option value="">اختر الولاية</option>
+                        ${ALGERIA_STATES.map(w => `<option value="${w}">${w}</option>`).join("")}
+                    </select>
+
+                    <select id="delivery" class="w-full p-3 rounded-xl bg-gray-50">
+                        <option value="office">مكتب</option>
+                        <option value="home">منزل</option>
+                    </select>
+
+                    <div class="bg-gray-800 text-white p-4 rounded-xl">
+                        <p>التوصيل: ${shipping} دج</p>
+                        <p>المجموع: ${Math.round(total)} دج</p>
                     </div>
-                    <div class="bg-gray-50 p-5 rounded-2xl">
-                        <span class="text-4xl font-bold text-gray-800">${Math.round(finalPrice)}</span>
-                        <span class="text-xl"> دج</span>
-                        <span class="line-through text-gray-400 mx-3">${PRODUCT.price} دج</span>
-                    </div>
-                    <button onclick="document.getElementById('orderForm').scrollIntoView({behavior:'smooth'})" 
-                            class="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 rounded-xl font-bold text-lg btn-glow">
-                        <i class="fas fa-cart-shopping ml-2"></i> اطلب الآن
+
+                    <button id="btn" class="w-full bg-green-600 text-white p-3 rounded-xl btn-glow">
+                        تأكيد الطلب
                     </button>
+
+                    ${formData.message ? `<p class="text-center mt-2">${formData.message}</p>` : ""}
                 </div>
-                
-                <div id="orderForm">
-                    <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                        <h3 class="text-2xl font-bold mb-5 border-r-4 border-orange-500 pr-3">
-                            <i class="fas fa-file-alt text-orange-500 ml-2"></i> بيانات الطلب
-                        </h3>
-                        
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-gray-700 text-sm font-bold mb-1">الاسم *</label>
-                                    <input type="text" id="firstName" value="${formData.firstName}" 
-                                           placeholder="أحمد" class="w-full p-3 rounded-xl bg-gray-50">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-700 text-sm font-bold mb-1">اللقب *</label>
-                                    <input type="text" id="lastName" value="${formData.lastName}" 
-                                           placeholder="بن عمار" class="w-full p-3 rounded-xl bg-gray-50">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-1">رقم الهاتف *</label>
-                                <input type="tel" id="phone" value="${formData.phone}" 
-                                       placeholder="05XX XX XX XX" class="w-full p-3 rounded-xl bg-gray-50">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-1">الولاية *</label>
-                                <select id="wilaya" class="w-full p-3 rounded-xl bg-gray-50">
-                                    <option value="">-- اختر الولاية --</option>
-                                    ${ALGERIA_STATES.map(w => `<option value="${w}" ${formData.wilaya === w ? 'selected' : ''}>${w}</option>`).join('')}
-                                </select>
-                            </div>
-                            
-                            ${formData.wilaya ? `
-                                <div class="bg-orange-50 p-4 rounded-xl">
-                                    <p class="font-bold mb-2">طريقة التوصيل:</p>
-                                    <div class="flex gap-4">
-                                        <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="radio" name="delivery" value="office" ${formData.delivery === 'office' ? 'checked' : ''}>
-                                            <span>📦 توصيل للمكتب</span>
-                                        </label>
-                                        <label class="flex items-center gap-2 cursor-pointer">
-                                            <input type="radio" name="delivery" value="home" ${formData.delivery === 'home' ? 'checked' : ''}>
-                                            <span>🏠 توصيل للمنزل <span class="text-orange-500">(+200 دج)</span></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="bg-gray-800 text-white p-5 rounded-xl">
-                                    <div class="flex justify-between mb-2">
-                                        <span>💰 سعر المنتج:</span>
-                                        <span>${Math.round(finalPrice)} دج</span>
-                                    </div>
-                                    <div class="flex justify-between mb-2">
-                                        <span>🚚 سعر التوصيل:</span>
-                                        <span class="text-orange-400">${shipping} دج</span>
-                                    </div>
-                                    <div class="flex justify-between pt-3 border-t border-gray-600 text-lg font-bold">
-                                        <span>💎 المجموع الكلي:</span>
-                                        <span class="text-yellow-400">${Math.round(total)} دج</span>
-                                    </div>
-                                </div>
-                            ` : ''}
-                            
-                            <button id="submitBtn" class="w-full bg-gradient-to-r from-green-600 to-emerald-700 text-white py-3 rounded-xl font-bold text-lg btn-glow">
-                                ${formData.loading ? '<span class="loading"></span> جاري الإرسال...' : '<i class="fab fa-telegram ml-2"></i> تأكيد الطلب'}
-                            </button>
-                            
-                            ${formData.message ? `
-                                <div class="text-center p-3 rounded-xl ${formData.message.includes('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                                    ${formData.message}
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-gray-100 p-4 text-center text-sm text-gray-600">
-                <i class="fas fa-lock ml-1"></i> دفع آمن عند الاستلام
             </div>
         </div>
     `;
-    
-    document.getElementById('root').innerHTML = html;
-    
-    document.getElementById('firstName')?.addEventListener('input', (e) => { formData.firstName = e.target.value; });
-    document.getElementById('lastName')?.addEventListener('input', (e) => { formData.lastName = e.target.value; });
-    document.getElementById('phone')?.addEventListener('input', (e) => { formData.phone = e.target.value; });
-    document.getElementById('wilaya')?.addEventListener('change', (e) => { formData.wilaya = e.target.value; render(); });
-    document.querySelectorAll('input[name="delivery"]')?.forEach(radio => {
-        radio?.addEventListener('change', (e) => { if (e.target.checked) { formData.delivery = e.target.value; render(); } });
-    });
-    document.getElementById('submitBtn')?.addEventListener('click', submitOrder);
+
+    document.getElementById("firstName").oninput = e => formData.firstName = e.target.value;
+    document.getElementById("lastName").oninput = e => formData.lastName = e.target.value;
+    document.getElementById("phone").oninput = e => formData.phone = e.target.value;
+    document.getElementById("wilaya").onchange = e => { formData.wilaya = e.target.value; render(); };
+    document.getElementById("delivery").onchange = e => { formData.delivery = e.target.value; render(); };
+
+    document.getElementById("btn").onclick = submit;
 }
 
-// ========== تأكيد الطلب ==========
-async function submitOrder() {
-    if (!formData.firstName.trim()) { formData.message = "❌ الرجاء إدخال الاسم"; render(); return; }
-    if (!formData.lastName.trim()) { formData.message = "❌ الرجاء إدخال اللقب"; render(); return; }
-    if (!formData.phone.trim()) { formData.message = "❌ الرجاء إدخال رقم الهاتف"; render(); return; }
-    if (!formData.wilaya) { formData.message = "❌ الرجاء اختيار الولاية"; render(); return; }
-    
+// ========== إرسال الطلب ==========
+async function submit() {
+    if (!formData.firstName || !formData.phone || !formData.wilaya) {
+        formData.message = "❌ أكمل البيانات";
+        render();
+        return;
+    }
+
     formData.loading = true;
-    formData.message = "";
     render();
-    
+
     const shipping = getShippingPrice(formData.wilaya, formData.delivery);
     const total = finalPrice + shipping;
-    
-    const sent = await sendToTelegram({
+
+    const ok = await sendToTelegram({
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone,
         state: formData.wilaya,
         deliveryType: formData.delivery,
-        shipping: shipping,
-        total: total,
+        shipping,
+        total,
         productName: PRODUCT.name
     });
-    
-    if (sent) {
-        formData.message = `✅ تم استلام طلبك بنجاح! المجموع: ${Math.round(total)} دج`;
-        formData.firstName = ""; formData.lastName = ""; formData.phone = ""; formData.wilaya = ""; formData.delivery = "office";
-    } else {
-        formData.message = "❌ حدث خطأ، حاول مرة أخرى";
-    }
-    
+
     formData.loading = false;
+
+    if (ok) {
+        formData.message = "✅ تم إرسال الطلب";
+        formData.firstName = "";
+        formData.lastName = "";
+        formData.phone = "";
+        formData.wilaya = "";
+    } else {
+        formData.message = "❌ فشل الإرسال";
+    }
+
     render();
-    setTimeout(() => { formData.message = ""; render(); }, 5000);
 }
 
 render();
 </script>
+
 </body>
 </html>
