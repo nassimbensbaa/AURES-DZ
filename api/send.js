@@ -5,22 +5,30 @@ export default async function handler(req, res) {
     }
 
     try {
-        const TELEGRAM_TOKEN = "7306506473:AAHtpkFmLX6h-xxjLQqS_N3hGSdXAfZnHyE";
-        const TELEGRAM_CHAT_ID = "7306506473";
+        // قراءة المتغيرات من بيئة Vercel
+        const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+        const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+        // التحقق من وجود المتغيرات
+        if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
+            return res.status(500).json({ 
+                success: false, 
+                error: 'التوكنات غير موجودة في إعدادات Vercel' 
+            });
+        }
 
         const orderData = req.body;
         
-        const message = `
-🌟 *طلب جديد من المتجر* 🌟
+        const message = `🌟 *طلب جديد* 🌟
 ━━━━━━━━━━━━━━━━━━━
-👤 *العميل:* ${orderData.firstName} ${orderData.lastName}
-📞 *الهاتف:* ${orderData.phone}
-📍 *الولاية:* ${orderData.state}
-🚚 *التوصيل:* ${orderData.deliveryType === 'office' ? '📦 مكتب' : '🏠 منزل'}
-💰 *سعر التوصيل:* ${orderData.shipping} دج
-💎 *المجموع:* ${Math.round(orderData.total)} دج
+👤 ${orderData.firstName} ${orderData.lastName}
+📞 ${orderData.phone}
+📍 ${orderData.state}
+🚚 ${orderData.deliveryType === 'office' ? '📦 مكتب' : '🏠 منزل'}
+💰 توصيل: ${orderData.shipping} دج
+💎 المجموع: ${Math.round(orderData.total)} دج
 ━━━━━━━━━━━━━━━━━━━
-        `;
+🕐 ${new Date().toLocaleString('ar-DZ')}`;
 
         const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
         const response = await fetch(url, {
