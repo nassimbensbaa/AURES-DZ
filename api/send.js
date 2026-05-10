@@ -5,17 +5,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        // قراءة المتغيرات من بيئة Vercel
-        const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
-        const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
-        // التحقق من وجود المتغيرات
-        if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
-            return res.status(500).json({ 
-                success: false, 
-                error: 'التوكنات غير موجودة في إعدادات Vercel' 
-            });
-        }
+        const TELEGRAM_TOKEN = "8654334809:AAGHZXjxwcDB0naVgJtYF0ZK2wuS-foI7C4";
+        const TELEGRAM_CHAT_ID = "6765048627";
 
         const orderData = req.body;
         
@@ -27,8 +18,7 @@ export default async function handler(req, res) {
 🚚 ${orderData.deliveryType === 'office' ? '📦 مكتب' : '🏠 منزل'}
 💰 توصيل: ${orderData.shipping} دج
 💎 المجموع: ${Math.round(orderData.total)} دج
-━━━━━━━━━━━━━━━━━━━
-🕐 ${new Date().toLocaleString('ar-DZ')}`;
+━━━━━━━━━━━━━━━━━━━`;
 
         const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
         const response = await fetch(url, {

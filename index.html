@@ -18,22 +18,12 @@
             background-clip: text;
             color: transparent;
         }
-        .btn-glow {
-            transition: all 0.3s ease;
-        }
-        .btn-glow:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
-        }
-        input, select {
-            transition: all 0.2s ease;
-            border: 2px solid #e5e7eb;
-        }
-        input:focus, select:focus {
-            border-color: #f59e0b;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
-        }
+        .btn-glow { transition: all 0.3s ease; }
+        .btn-glow:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+        input, select { transition: all 0.2s ease; border: 2px solid #e5e7eb; }
+        input:focus, select:focus { border-color: #f59e0b; outline: none; box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-gray-200">
@@ -51,9 +41,9 @@ const PRODUCT = {
 
 const finalPrice = PRODUCT.price * (1 - PRODUCT.discount / 100);
 
-// ========== التوكنات (ضعها هنا مباشرة) ==========
-const TELEGRAM_TOKEN = "7306506473:AAHtpkFmLX6h-xxjLQqS_N3hGSdXAfZnHyE";
-const TELEGRAM_CHAT_ID = "7306506473";
+// ========== التوكنات الجديدة (التي تعمل) ==========
+const TELEGRAM_TOKEN = "8654334809:AAGHZXjxwcDB0naVgJtYF0ZK2wuS-foI7C4";
+const TELEGRAM_CHAT_ID = "6765048627";
 
 // ========== جميع ولايات الجزائر ==========
 const ALGERIA_STATES = [
@@ -78,23 +68,24 @@ function getShippingPrice(state, deliveryType) {
 
 // ========== إرسال إلى التلغرام (مباشر) ==========
 async function sendToTelegram(orderData) {
-    const message = `🌟 طلب جديد من المتجر 🌟
+    const message = `🌟 *طلب جديد من المتجر* 🌟
 ━━━━━━━━━━━━━━━━━━━
-👤 العميل: ${orderData.firstName} ${orderData.lastName}
-📞 الهاتف: ${orderData.phone}
-📍 الولاية: ${orderData.state}
-🚚 التوصيل: ${orderData.deliveryType === 'office' ? '📦 مكتب' : '🏠 منزل'}
-💰 سعر التوصيل: ${orderData.shipping} دج
-💎 المجموع الكلي: ${Math.round(orderData.total)} دج
+👤 *العميل:* ${orderData.firstName} ${orderData.lastName}
+📞 *الهاتف:* ${orderData.phone}
+📍 *الولاية:* ${orderData.state}
+🚚 *التوصيل:* ${orderData.deliveryType === 'office' ? '📦 مكتب' : '🏠 منزل'}
+💰 *سعر التوصيل:* ${orderData.shipping} دج
+💎 *المجموع الكلي:* ${Math.round(orderData.total)} دج
 ━━━━━━━━━━━━━━━━━━━
-🛍️ المنتج: ${orderData.productName}
-📅 التاريخ: ${new Date().toLocaleString('ar-DZ')}`;
+🛍️ *المنتج:* ${orderData.productName}
+📅 *التاريخ:* ${new Date().toLocaleString('ar-DZ')}`;
 
-    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`;
+    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
     
     try {
         const response = await fetch(url);
         const result = await response.json();
+        console.log("رد التلغرام:", result);
         return result.ok === true;
     } catch (error) {
         console.error("خطأ:", error);
@@ -207,7 +198,7 @@ function render() {
                             ` : ''}
                             
                             <button id="submitBtn" class="w-full bg-gradient-to-r from-green-600 to-emerald-700 text-white py-3 rounded-xl font-bold text-lg btn-glow">
-                                ${formData.loading ? 'جاري الإرسال...' : '<i class="fab fa-telegram ml-2"></i> تأكيد الطلب'}
+                                ${formData.loading ? '<span class="loading"></span> جاري الإرسال...' : '<i class="fab fa-telegram ml-2"></i> تأكيد الطلب'}
                             </button>
                             
                             ${formData.message ? `
@@ -231,21 +222,10 @@ function render() {
     document.getElementById('firstName')?.addEventListener('input', (e) => { formData.firstName = e.target.value; });
     document.getElementById('lastName')?.addEventListener('input', (e) => { formData.lastName = e.target.value; });
     document.getElementById('phone')?.addEventListener('input', (e) => { formData.phone = e.target.value; });
-    
-    document.getElementById('wilaya')?.addEventListener('change', (e) => {
-        formData.wilaya = e.target.value;
-        render();
-    });
-    
+    document.getElementById('wilaya')?.addEventListener('change', (e) => { formData.wilaya = e.target.value; render(); });
     document.querySelectorAll('input[name="delivery"]')?.forEach(radio => {
-        radio?.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                formData.delivery = e.target.value;
-                render();
-            }
-        });
+        radio?.addEventListener('change', (e) => { if (e.target.checked) { formData.delivery = e.target.value; render(); } });
     });
-    
     document.getElementById('submitBtn')?.addEventListener('click', submitOrder);
 }
 
