@@ -1,222 +1,38 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>متجر VIP | ساعة برو MAX - اطلب الآن</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-        }
-        .title-float {
-            animation: float 3s ease-in-out infinite;
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .btn-glow { 
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-glow:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.25);
-            filter: brightness(1.02);
-        }
-        .btn-glow:active {
-            transform: translateY(1px);
-        }
-        input, select, textarea { 
-            transition: all 0.2s ease; 
-            border: 2px solid #e5e7eb; 
-            font-family: inherit;
-        }
-        input:focus, select:focus, textarea:focus { 
-            border-color: #f59e0b; 
-            outline: none; 
-            box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
-            background-color: #fffaf0;
-        }
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #ffffff80;
-            border-top: 3px solid #ffffff;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .success-toast {
-            animation: fadeSlide 0.4s ease-out;
-        }
-        @keyframes fadeSlide {
-            from {
-                opacity: 0;
-                transform: translateY(-15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .price-tag {
-            background: linear-gradient(145deg, #1f2937, #111827);
-        }
-        .card-hover {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .card-hover:hover {
-            transform: scale(1.01);
-            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.2);
-        }
-        
-        /* تحسين التنقل بين الخانات */
-        input, select, button {
-            transition: all 0.2s ease;
-        }
-        
-        /* تأثير للخانة النشطة */
-        input:focus, select:focus {
-            transform: scale(1.02);
-        }
-        
-        /* تنسيق الصورة المحلية */
-        .product-image-container {
-            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
-            position: relative;
-            overflow: hidden;
-            border-radius: 1rem;
-        }
-        
-        .product-image-container img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            transition: transform 0.3s ease;
-        }
-        
-        .product-image-container:hover img {
-            transform: scale(1.05);
-        }
-        
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #f59e0b;
-            border-radius: 10px;
-        }
-        
-        /* تحسين عرض الصورة */
-        img {
-            width: 100%;
-            height: auto;
-            object-fit: cover;
-        }
-        
-        /* رسالة خطأ الصورة */
-        .image-error-message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            background: rgba(255,255,255,0.9);
-            padding: 20px;
-            border-radius: 12px;
-            white-space: nowrap;
-        }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-amber-50 via-orange-50 to-gray-100 font-sans">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>متجر VIP</title>
+<script src="https://cdn.tailwindcss.com"></script>
 
-<div id="root" class="max-w-5xl mx-auto p-4 md:p-6"></div>
+<style>
+body { font-family: sans-serif; }
+.loading-spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid #ccc;
+    border-top: 3px solid #000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+
+<body class="bg-gray-100">
+
+<div id="root"></div>
 
 <script>
-// ========== بيانات المنتج المعتمدة ==========
 const PRODUCT = {
-    name: "🔥 ساعة ذكية برو MAX | إصدار VIP",
+    name: "ساعة ذكية VIP",
     price: 12990,
     discount: 28,
-    // استخدام الصورة من المجلد المحلي images/nassim.png كما في الكود الأصلي
     image: "images/nassim.png",
-    imageFallback: "https://placehold.co/600x500/1e293b/f59e0b?text=⌚+ساعة+VIP+MAX&font=roboto",
-    badge: "🔥 خصم 28% لفترة محدودة"
+    fallback: "https://placehold.co/600x400"
 };
 
-// السعر بعد الخصم
-const finalPrice = Math.round(PRODUCT.price * (1 - PRODUCT.discount / 100));
-
-// ========== قائمة الولايات الموسعة ==========
-const ALGERIA_STATES = [
-    "الجزائر", "وهران", "قسنطينة", "بجاية", "البليدة", "عنابة", "سطيف", "باتنة",
-    "تيزي وزو", "بومرداس", "تيبازة", "مدية", "برج بوعريريج", "ميلة", "جيهل",
-    "سكيكدة", "الطارف", "قالمة", "سوق أهراس", "تبسة", "خنشلة", "بسكرة", "ورقلة"
-];
-
-// ========== حساب سعر التوصيل ==========
-function getShippingPrice(state, deliveryType) {
-    if (!state) return 0;
-    let base = deliveryType === "home" ? 600 : 400;
-    const farStates = ["تبسة", "ورقلة", "بسكرة", "خنشلة", "الطارف"];
-    if (farStates.includes(state) && deliveryType === "home") base += 150;
-    return base;
-}
-
-// ========== إرسال الطلب إلى API ==========
-async function sendToTelegram(orderData) {
-    try {
-        const response = await fetch("/api/order", {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify(orderData)
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            return result.ok === true;
-        } else {
-            // وضع تجريبي لحفظ الطلبات محلياً
-            console.warn("API endpoint not available - saving order locally");
-            const mockOrders = JSON.parse(localStorage.getItem("demo_orders") || "[]");
-            mockOrders.push({ ...orderData, timestamp: new Date().toISOString() });
-            localStorage.setItem("demo_orders", JSON.stringify(mockOrders));
-            return true;
-        }
-    } catch (err) {
-        console.error("Network error:", err);
-        const mockOrders = JSON.parse(localStorage.getItem("demo_orders") || "[]");
-        mockOrders.push({ ...orderData, timestamp: new Date().toISOString(), offlineFallback: true });
-        localStorage.setItem("demo_orders", JSON.stringify(mockOrders));
-        return true;
-    }
-}
-
-// ========== الحالة الرئيسية ==========
 let state = {
     firstName: "",
     lastName: "",
@@ -224,394 +40,115 @@ let state = {
     wilaya: "",
     delivery: "office",
     loading: false,
-    message: { text: "", type: "" },
-    imageError: false
+    imageError: false,
+    message: ""
 };
 
-// ========== دوال مساعدة ==========
-function updateMessage(msg, type = "error") {
-    state.message = { text: msg, type: type };
-    render();
-    if (type === "success") {
-        setTimeout(() => {
-            if (state.message.text === msg) {
-                state.message = { text: "", type: "" };
-                render();
-            }
-        }, 4000);
+const finalPrice = Math.round(PRODUCT.price * (1 - PRODUCT.discount / 100));
+
+/* ========== SEND TO TELEGRAM (FIXED) ========== */
+async function sendToTelegram(orderData) {
+    try {
+        const res = await fetch("/api/order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderData)
+        });
+
+        const data = await res.json().catch(() => null);
+
+        console.log("SERVER RESPONSE:", data);
+
+        if (!res.ok) return false;
+        if (data && data.ok === true) return true;
+
+        return false;
+
+    } catch (err) {
+        console.error("ERROR:", err);
+        return false;
     }
 }
 
-function validatePhone(phone) {
-    const cleaned = phone.replace(/\s/g, '');
-    const algerianRegex = /^(05|06|07)\d{8}$/;
-    if (algerianRegex.test(cleaned)) return true;
-    if (/^\d{9,12}$/.test(cleaned)) return true;
-    return false;
-}
-
-// ========== إرسال الطلب ==========
+/* ========== SUBMIT ORDER ========== */
 async function submitOrder() {
-    if (!state.firstName.trim()) {
-        updateMessage("⚠️ الرجاء إدخال الاسم", "error");
-        document.getElementById("firstNameInput")?.focus();
-        return;
-    }
-    if (!state.lastName.trim()) {
-        updateMessage("⚠️ الرجاء إدخال اللقب", "error");
-        document.getElementById("lastNameInput")?.focus();
-        return;
-    }
-    if (!state.phone.trim()) {
-        updateMessage("📱 الرجاء إدخال رقم الهاتف", "error");
-        document.getElementById("phoneInput")?.focus();
-        return;
-    }
-    if (!validatePhone(state.phone.trim())) {
-        updateMessage("📞 رقم هاتف غير صالح (مثال: 0555123456)", "error");
-        document.getElementById("phoneInput")?.focus();
-        return;
-    }
-    if (!state.wilaya) {
-        updateMessage("📍 الرجاء اختيار الولاية", "error");
-        document.getElementById("wilayaSelect")?.focus();
+
+    if (!state.firstName || !state.phone) {
+        state.message = "❌ أكمل البيانات";
+        render();
         return;
     }
 
     state.loading = true;
     render();
 
-    const shippingPrice = getShippingPrice(state.wilaya, state.delivery);
-    const totalAmount = finalPrice + shippingPrice;
-
-    const orderPayload = {
-        firstName: state.firstName.trim(),
-        lastName: state.lastName.trim(),
-        phone: state.phone.trim(),
-        state: state.wilaya,
-        deliveryType: state.delivery,
-        shipping: shippingPrice,
-        total: totalAmount,
-        productName: PRODUCT.name,
-        finalPrice: finalPrice,
-        orderDate: new Date().toISOString()
+    const order = {
+        firstName: state.firstName,
+        lastName: state.lastName,
+        phone: state.phone,
+        wilaya: state.wilaya,
+        delivery: state.delivery,
+        total: finalPrice,
+        product: PRODUCT.name
     };
 
-    const success = await sendToTelegram(orderPayload);
-    
+    const ok = await sendToTelegram(order);
+
     state.loading = false;
 
-    if (success) {
+    if (ok) {
+        state.message = "✅ تم إرسال الطلب";
         state.firstName = "";
         state.lastName = "";
         state.phone = "";
-        state.wilaya = "";
-        state.delivery = "office";
-        updateMessage("✅ تم استلام طلبك بنجاح! سيتصل بك فريق الدعم خلال 24 ساعة.", "success");
     } else {
-        updateMessage("❌ حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.", "error");
+        state.message = "❌ فشل الإرسال (تحقق من API)";
     }
+
     render();
 }
 
-// ========== معالجة أخطاء الصورة ==========
-function handleImageError(event) {
-    if (!state.imageError) {
-        console.warn("الصورة المحلية غير موجودة: images/nassim.png");
-        state.imageError = true;
-        render();
-    }
+/* ========== IMAGE HANDLER ========== */
+function handleImageError() {
+    state.imageError = true;
+    render();
 }
 
-// ========== تحسين التنقل بين الخانات ==========
-function setupTabNavigation() {
-    const inputs = document.querySelectorAll('input, select, button');
-    inputs.forEach((input, index) => {
-        if (input.tagName !== 'BUTTON') {
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const nextInput = inputs[index + 1];
-                    if (nextInput && nextInput.tagName !== 'BUTTON') {
-                        nextInput.focus();
-                    } else if (nextInput && nextInput.tagName === 'BUTTON') {
-                        submitOrder();
-                    } else {
-                        submitOrder();
-                    }
-                }
-            });
-        }
-    });
-}
-
-// ========== عرض الواجهة ==========
+/* ========== RENDER ========== */
 function render() {
-    const root = document.getElementById("root");
-    if (!root) return;
-    
-    const shippingPrice = (state.wilaya) ? getShippingPrice(state.wilaya, state.delivery) : 0;
-    const totalPrice = finalPrice + shippingPrice;
-    const isDisabled = state.loading;
-    
-    const messageHtml = state.message.text ? 
-        `<div class="mt-4 p-3 rounded-xl text-center font-medium transition-all success-toast shadow-md 
-            ${state.message.type === 'success' ? 'bg-emerald-100 text-emerald-800 border-r-4 border-emerald-500' : 'bg-red-100 text-red-800 border-r-4 border-red-500'}">
-            <i class="fas ${state.message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} ml-2"></i>
-            ${state.message.text}
-        </div>` : '';
-    
-    const buttonContent = state.loading ? 
-        `<span class="inline-flex items-center justify-center"><span>جاري الإرسال</span><span class="loading-spinner"></span></span>` 
-        : '<span><i class="fas fa-check-circle ml-2"></i> تأكيد الطلب الآن</span>';
-    
-    // تحديد مصدر الصورة (مع إمكانية الفشل إلى الصورة الاحتياطية)
-    const imageSrc = state.imageError ? PRODUCT.imageFallback : PRODUCT.image;
-    
-    const html = `
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden card-hover transition-all duration-300">
-            <div class="relative bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-center">
-                <span class="text-white text-sm font-bold tracking-wide flex items-center justify-center gap-2">
-                    <i class="fas fa-gem"></i>
-                    ${PRODUCT.badge}
-                </span>
-            </div>
-            <div class="p-6 md:p-8">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-center title-float mb-6 flex items-center justify-center gap-2 flex-wrap">
-                    <i class="fas fa-crown text-amber-500 text-3xl"></i>
-                    ${PRODUCT.name}
-                </h1>
-                
-                <div class="grid md:grid-cols-2 gap-8 items-start">
-                    <!-- قسم الصورة المحلية -->
-                    <div class="relative group">
-                        <div class="rounded-2xl overflow-hidden shadow-xl product-image-container bg-gradient-to-br from-amber-50 to-orange-100">
-                            <img src="${imageSrc}" 
-                                 alt="ساعة ذكية VIP MAX - صورة المنتج" 
-                                 class="w-full h-auto object-contain transform transition duration-300 group-hover:scale-105"
-                                 style="min-height: 350px; max-height: 400px; width: 100%;"
-                                 onerror="handleImageErrorFromRender(event)"
-                                 loading="eager">
-                            ${!state.imageError ? '<div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>' : ''}
-                        </div>
-                        ${!state.imageError ? `
-                        <div class="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg transform rotate-3">
-                            <i class="fas fa-tag ml-1"></i> خصم ${PRODUCT.discount}%
-                        </div>
-                        <div class="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg text-xs backdrop-blur-sm">
-                            <i class="fas fa-shield-alt ml-1"></i> ضمان لمدة عام
-                        </div>
-                        ` : ''}
-                        <div class="mt-4 text-center space-y-2">
-                            <div class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 px-5 py-2 rounded-full shadow-sm">
-                                <span class="text-gray-500 line-through text-lg">${PRODUCT.price.toLocaleString()} دج</span>
-                                <span class="text-2xl font-bold text-green-700">${finalPrice.toLocaleString()} دج</span>
-                            </div>
-                            <p class="text-xs text-gray-500"><i class="fas fa-truck ml-1 text-amber-600"></i> توصيل سريع لجميع الولايات (2-5 أيام)</p>
-                            ${state.imageError ? '<p class="text-xs text-amber-600 mt-1"><i class="fas fa-image ml-1"></i> ملاحظة: يرجى التأكد من وجود الصورة في مجلد images/nassim.png</p>' : ''}
-                        </div>
-                    </div>
-                    
-                    <!-- نموذج الطلب مع تحسين التنقل -->
-                    <div class="space-y-4 bg-gradient-to-br from-gray-50 to-white p-5 rounded-2xl shadow-lg border border-gray-100">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">
-                                    <i class="fas fa-user ml-1 text-amber-600"></i> الاسم <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="firstNameInput" value="${escapeHtml(state.firstName)}" 
-                                       class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
-                                       placeholder="أحمد" autocomplete="given-name" tabindex="1">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">
-                                    <i class="fas fa-user ml-1 text-amber-600"></i> اللقب <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="lastNameInput" value="${escapeHtml(state.lastName)}" 
-                                       class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
-                                       placeholder="بن علي" autocomplete="family-name" tabindex="2">
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">
-                                <i class="fas fa-phone ml-1 text-amber-600"></i> رقم الهاتف <span class="text-red-500">*</span>
-                            </label>
-                            <input type="tel" id="phoneInput" value="${escapeHtml(state.phone)}" 
-                                   class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" 
-                                   placeholder="05 XX XX XX XX" dir="ltr" autocomplete="tel" tabindex="3">
-                            <p class="text-xs text-gray-400 mt-1"><i class="fas fa-info-circle ml-1"></i> أدخل رقم هاتف صحيح للتواصل معك</p>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">
-                                <i class="fas fa-map-marker-alt ml-1 text-amber-600"></i> الولاية <span class="text-red-500">*</span>
-                            </label>
-                            <select id="wilayaSelect" class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" tabindex="4">
-                                <option value="">-- اختر الولاية --</option>
-                                ${ALGERIA_STATES.map(w => `<option value="${escapeHtml(w)}" ${state.wilaya === w ? 'selected' : ''}>${escapeHtml(w)}</option>`).join('')}
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">
-                                <i class="fas fa-truck ml-1 text-amber-600"></i> طريقة الاستلام
-                            </label>
-                            <div class="flex gap-3 bg-white p-2 rounded-xl border-2 border-gray-200">
-                                <label class="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg cursor-pointer transition ${state.delivery === 'office' ? 'bg-amber-100 text-amber-800 border-2 border-amber-300' : 'bg-gray-50 border border-gray-200'}">
-                                    <input type="radio" name="deliveryMethod" value="office" ${state.delivery === 'office' ? 'checked' : ''} class="hidden" tabindex="5">
-                                    <i class="fas fa-building"></i>
-                                    <span>استلام من مكتب</span>
-                                </label>
-                                <label class="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg cursor-pointer transition ${state.delivery === 'home' ? 'bg-amber-100 text-amber-800 border-2 border-amber-300' : 'bg-gray-50 border border-gray-200'}">
-                                    <input type="radio" name="deliveryMethod" value="home" ${state.delivery === 'home' ? 'checked' : ''} class="hidden" tabindex="6">
-                                    <i class="fas fa-home"></i>
-                                    <span>توصيل للمنزل</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- تفاصيل السعر -->
-                        <div class="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-4 rounded-xl space-y-2 shadow-md">
-                            <div class="flex justify-between text-sm">
-                                <span>💰 سعر المنتج (بعد الخصم):</span>
-                                <span class="font-bold">${finalPrice.toLocaleString()} دج</span>
-                            </div>
-                            <div class="flex justify-between text-sm border-t border-gray-600 pt-1">
-                                <span>🚚 رسوم التوصيل:</span>
-                                <span class="font-bold">${shippingPrice.toLocaleString()} دج</span>
-                            </div>
-                            <div class="flex justify-between text-lg font-bold border-t-2 border-amber-500 mt-1 pt-2">
-                                <span>💎 الإجمالي:</span>
-                                <span class="text-amber-400 text-xl">${totalPrice.toLocaleString()} دج</span>
-                            </div>
-                            <div class="text-xs text-gray-300 text-center mt-2">
-                                <i class="fas fa-hand-holding-usd ml-1"></i> دفع عند الاستلام - آمن ومضمون
-                            </div>
-                        </div>
-                        
-                        <button id="submitOrderBtn" 
-                                class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white p-3 rounded-xl btn-glow font-bold text-lg flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed" 
-                                ${isDisabled ? 'disabled' : ''}
-                                tabindex="7">
-                            ${buttonContent}
-                        </button>
-                        
-                        ${messageHtml}
-                        
-                        <div class="text-center text-xs text-gray-400 pt-2 border-t border-gray-200">
-                            <i class="fab fa-whatsapp ml-1 text-green-500"></i> الدعم الفني: 0555123456
-                            <span class="mx-2">•</span>
-                            <i class="fas fa-lock ml-1"></i> معلوماتك آمنة
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-100 text-center py-3 text-xs text-gray-500 border-t">
-                <span>متجر VIP ™ - تسوق آمن مع خدمة التوصيل السريع إلى جميع ولايات الجزائر</span>
-            </div>
-        </div>
+
+    const img = state.imageError ? PRODUCT.fallback : PRODUCT.image;
+
+    document.getElementById("root").innerHTML = `
+    <div class="max-w-xl mx-auto bg-white p-4 mt-10 rounded-xl shadow">
+
+        <h1 class="text-xl font-bold mb-4">${PRODUCT.name}</h1>
+
+        <img src="${img}" onerror="handleImageError()" class="w-full rounded">
+
+        <p class="mt-2">السعر: ${finalPrice} دج</p>
+
+        <input id="fn" placeholder="الاسم" class="border p-2 w-full mt-2">
+        <input id="ln" placeholder="اللقب" class="border p-2 w-full mt-2">
+        <input id="ph" placeholder="الهاتف" class="border p-2 w-full mt-2">
+
+        <button onclick="submitOrder()" 
+            class="bg-green-600 text-white w-full p-2 mt-3 rounded">
+
+            ${state.loading ? `<span class="loading-spinner inline-block"></span>` : "إرسال الطلب"}
+
+        </button>
+
+        <p class="mt-3 text-center">${state.message || ""}</p>
+
+    </div>
     `;
-    
-    root.innerHTML = html;
-    
-    // ربط الأحداث
-    const firstNameEl = document.getElementById("firstNameInput");
-    const lastNameEl = document.getElementById("lastNameInput");
-    const phoneEl = document.getElementById("phoneInput");
-    const wilayaEl = document.getElementById("wilayaSelect");
-    const radioOffice = document.querySelector("input[value='office']");
-    const radioHome = document.querySelector("input[value='home']");
-    const submitBtn = document.getElementById("submitOrderBtn");
-    
-    if (firstNameEl) {
-        firstNameEl.addEventListener("input", (e) => { state.firstName = e.target.value; });
-        firstNameEl.addEventListener("keypress", handleEnterKey);
-    }
-    if (lastNameEl) {
-        lastNameEl.addEventListener("input", (e) => { state.lastName = e.target.value; });
-        lastNameEl.addEventListener("keypress", handleEnterKey);
-    }
-    if (phoneEl) {
-        phoneEl.addEventListener("input", (e) => { state.phone = e.target.value; });
-        phoneEl.addEventListener("keypress", handleEnterKey);
-    }
-    if (wilayaEl) {
-        wilayaEl.addEventListener("change", (e) => { state.wilaya = e.target.value; render(); });
-        wilayaEl.addEventListener("keypress", handleEnterKey);
-    }
-    
-    if (radioOffice) {
-        radioOffice.addEventListener("change", (e) => { if(e.target.checked) { state.delivery = "office"; render(); } });
-    }
-    if (radioHome) {
-        radioHome.addEventListener("change", (e) => { if(e.target.checked) { state.delivery = "home"; render(); } });
-    }
-    
-    if (submitBtn) {
-        submitBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            if (!state.loading) submitOrder();
-        });
-    }
-    
-    // إضافة معالج خطأ الصورة عالميًا
-    window.handleImageErrorFromRender = function(event) {
-        if (!state.imageError) {
-            console.log("⚠️ الصورة المحلية غير موجودة: images/nassim.png - جاري استخدام الصورة الاحتياطية");
-            state.imageError = true;
-            render();
-        }
-    };
-    
-    // تحسين التنقل بين الخانات
-    setupTabNavigation();
+
+    document.getElementById("fn").oninput = e => state.firstName = e.target.value;
+    document.getElementById("ln").oninput = e => state.lastName = e.target.value;
+    document.getElementById("ph").oninput = e => state.phone = e.target.value;
 }
 
-// معالج مفتاح Enter للتنقل السلس
-function handleEnterKey(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        const inputs = ['firstNameInput', 'lastNameInput', 'phoneInput', 'wilayaSelect'];
-        const currentId = e.target.id;
-        const currentIndex = inputs.indexOf(currentId);
-        
-        if (currentIndex !== -1 && currentIndex < inputs.length - 1) {
-            const nextInput = document.getElementById(inputs[currentIndex + 1]);
-            if (nextInput) {
-                nextInput.focus();
-                if (nextInput.tagName === 'SELECT') {
-                    nextInput.click();
-                }
-            }
-        } else if (currentIndex === inputs.length - 1) {
-            submitOrder();
-        }
-    }
-}
-
-function escapeHtml(str) {
-    if (!str) return "";
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
-}
-
-function setupTabNavigation() {
-    const focusableElements = document.querySelectorAll('input, select, button');
-    if (focusableElements.length > 0) {
-        focusableElements.forEach((el, idx) => {
-            if (el.tagName !== 'BUTTON') {
-                el.setAttribute('tabindex', idx + 1);
-            }
-        });
-    }
-}
-
-// بدء التطبيق
 render();
 </script>
 

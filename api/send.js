@@ -7,37 +7,59 @@ export default async function handler(req, res) {
     const BOT_TOKEN = process.env.BOT_TOKEN;
     const CHAT_ID = process.env.CHAT_ID;
 
-    const { firstName, lastName, phone, state, deliveryType, shipping, total, productName } = req.body;
+    if (!BOT_TOKEN || !CHAT_ID) {
+      return res.status(500).json({
+        ok: false,
+        message: "BOT_TOKEN or CHAT_ID missing in environment variables"
+      });
+    }
+
+    const data = req.body;
 
     const message = `
-🌟 طلب جديد من المتجر 🌟
-━━━━━━━━━━━━━━
-👤 الاسم: ${firstName} ${lastName}
-📞 الهاتف: ${phone}
-📍 الولاية: ${state}
-🚚 التوصيل: ${deliveryType === "home" ? "منزل" : "مكتب"}
-💰 التوصيل: ${shipping} دج
-💎 المجموع: ${Math.round(total)} دج
-🛍️ المنتج: ${productName}
-━━━━━━━━━━━━━━
+🆕 طلب جديد:
+👤 الاسم: ${data.firstName || ""} ${data.lastName || ""}
+📞 الهاتف: ${data.phone || ""}
+📍 الولاية: ${data.wilaya || data.state || ""}
+🚚 التوصيل: ${data.delivery || data.deliveryType || ""}
+💰 السعر: ${data.total || 0} دج
+📦 المنتج: ${data.productName || "غير محدد"}
 `;
 
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
-    const telegramRes = await fetch(url, {
+    const telegramRes = await fetch(telegramUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: CHAT_ID,
-        text: message
-      })
+        text: message,
+      }),
     });
 
-    const data = await telegramRes.json();
+    const result = await telegramRes.json();
 
-    return res.status(200).json(data);
+    console.log("TELEGRAM RESPONSE:", result);
+
+    if (!result.ok) {
+      return res.status(500).json({
+        ok: false,
+        message: "Telegram API error",
+        result
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      result
+    });
 
   } catch (error) {
-    return res.status(500).json({ ok: false, error: error.message });
+    console.error(error);
+
+    return res.status(500).json({
+      ok: false,
+      error: error.message
+    });
   }
 }
