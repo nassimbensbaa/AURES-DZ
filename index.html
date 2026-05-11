@@ -11,42 +11,28 @@
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-        }
         .title-float {
             animation: float 3s ease-in-out infinite;
             background: linear-gradient(135deg, #f59e0b, #ef4444);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .btn-glow { 
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
         .btn-glow:hover { 
             transform: translateY(-2px); 
-            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.25);
-            filter: brightness(1.02);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
         }
-        .btn-glow:active {
-            transform: translateY(1px);
-        }
-        input, select, textarea { 
+        input, select { 
             transition: all 0.2s ease; 
             border: 2px solid #e5e7eb; 
-            font-family: inherit;
         }
-        input:focus, select:focus, textarea:focus { 
+        input:focus, select:focus { 
             border-color: #f59e0b; 
             outline: none; 
-            box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
-            background-color: #fffaf0;
+            box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
         }
         .loading-spinner {
             display: inline-block;
@@ -74,33 +60,12 @@
                 transform: translateY(0);
             }
         }
-        .price-tag {
-            background: linear-gradient(145deg, #1f2937, #111827);
-        }
-        .card-hover {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .card-hover:hover {
-            transform: scale(1.01);
-            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.2);
-        }
         
-        /* تحسين التنقل بين الخانات */
-        input, select, button {
-            transition: all 0.2s ease;
-        }
-        
-        /* تأثير للخانة النشطة */
-        input:focus, select:focus {
-            transform: scale(1.02);
-        }
-        
-        /* تنسيق الصورة المحلية */
+        /* تنسيق الصورة */
         .product-image-container {
             background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
-            position: relative;
-            overflow: hidden;
             border-radius: 1rem;
+            overflow: hidden;
         }
         
         .product-image-container img {
@@ -114,38 +79,9 @@
             transform: scale(1.05);
         }
         
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #f59e0b;
-            border-radius: 10px;
-        }
-        
-        /* تحسين عرض الصورة */
-        img {
-            width: 100%;
-            height: auto;
-            object-fit: cover;
-        }
-        
-        /* رسالة خطأ الصورة */
-        .image-error-message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            background: rgba(255,255,255,0.9);
-            padding: 20px;
-            border-radius: 12px;
-            white-space: nowrap;
+        /* تخصيص شريط التمرير للقائمة المنسدلة */
+        select option {
+            padding: 10px;
         }
     </style>
 </head>
@@ -154,34 +90,87 @@
 <div id="root" class="max-w-5xl mx-auto p-4 md:p-6"></div>
 
 <script>
-// ========== بيانات المنتج المعتمدة ==========
+// ========== بيانات المنتج ==========
 const PRODUCT = {
     name: "🔥 ساعة ذكية برو MAX | إصدار VIP",
     price: 12990,
     discount: 28,
-    // استخدام الصورة من المجلد المحلي images/nassim.png كما في الكود الأصلي
     image: "images/nassim.png",
-    imageFallback: "https://placehold.co/600x500/1e293b/f59e0b?text=⌚+ساعة+VIP+MAX&font=roboto",
-    badge: "🔥 خصم 28% لفترة محدودة"
+    imageFallback: "https://placehold.co/600x500/1e293b/f59e0b?text=⌚+ساعة+VIP+MAX&font=roboto"
 };
 
-// السعر بعد الخصم
 const finalPrice = Math.round(PRODUCT.price * (1 - PRODUCT.discount / 100));
 
-// ========== قائمة الولايات الموسعة ==========
-const ALGERIA_STATES = [
-    "الجزائر", "وهران", "قسنطينة", "بجاية", "البليدة", "عنابة", "سطيف", "باتنة",
-    "تيزي وزو", "بومرداس", "تيبازة", "مدية", "برج بوعريريج", "ميلة", "جيهل",
-    "سكيكدة", "الطارف", "قالمة", "سوق أهراس", "تبسة", "خنشلة", "بسكرة", "ورقلة"
+// ========== جميع ولايات الجزائر (58 ولاية) مع أسعار التوصيل الافتراضية ==========
+// يمكنك تعديل هذه الأسعار بسهولة لكل ولاية على حدة
+const ALGERIA_STATES_WITH_PRICES = [
+    { name: "أدرار", officePrice: 500, homePrice: 800 },
+    { name: "الشلف", officePrice: 400, homePrice: 650 },
+    { name: "الأغواط", officePrice: 480, homePrice: 750 },
+    { name: "أم البواقي", officePrice: 450, homePrice: 700 },
+    { name: "باتنة", officePrice: 420, homePrice: 680 },
+    { name: "بجاية", officePrice: 380, homePrice: 620 },
+    { name: "بسكرة", officePrice: 460, homePrice: 720 },
+    { name: "بشار", officePrice: 550, homePrice: 850 },
+    { name: "البليدة", officePrice: 350, homePrice: 580 },
+    { name: "البويرة", officePrice: 370, homePrice: 600 },
+    { name: "تمنراست", officePrice: 600, homePrice: 900 },
+    { name: "تبسة", officePrice: 480, homePrice: 740 },
+    { name: "تلمسان", officePrice: 440, homePrice: 690 },
+    { name: "تيارت", officePrice: 420, homePrice: 670 },
+    { name: "تيزي وزو", officePrice: 390, homePrice: 630 },
+    { name: "الجزائر", officePrice: 300, homePrice: 500 },
+    { name: "جلفة", officePrice: 450, homePrice: 710 },
+    { name: "جيجل", officePrice: 400, homePrice: 650 },
+    { name: "سطيف", officePrice: 380, homePrice: 620 },
+    { name: "سعيدة", officePrice: 430, homePrice: 680 },
+    { name: "سكيكدة", officePrice: 410, homePrice: 660 },
+    { name: "بلعباس", officePrice: 420, homePrice: 670 },
+    { name: "عنابة", officePrice: 380, homePrice: 620 },
+    { name: "قالمة", officePrice: 420, homePrice: 670 },
+    { name: "قسنطينة", officePrice: 370, homePrice: 600 },
+    { name: "المدية", officePrice: 370, homePrice: 600 },
+    { name: "مستغانم", officePrice: 400, homePrice: 650 },
+    { name: "المسيلة", officePrice: 420, homePrice: 670 },
+    { name: "معسكر", officePrice: 410, homePrice: 660 },
+    { name: "ورقلة", officePrice: 520, homePrice: 800 },
+    { name: "وهران", officePrice: 360, homePrice: 590 },
+    { name: "البيض", officePrice: 500, homePrice: 780 },
+    { name: "إليزي", officePrice: 650, homePrice: 950 },
+    { name: "برج بوعريريج", officePrice: 390, homePrice: 630 },
+    { name: "بومرداس", officePrice: 360, homePrice: 590 },
+    { name: "الطارف", officePrice: 430, homePrice: 680 },
+    { name: "تندوف", officePrice: 620, homePrice: 920 },
+    { name: "تيسمسيلت", officePrice: 440, homePrice: 690 },
+    { name: "الوادي", officePrice: 500, homePrice: 770 },
+    { name: "خنشلة", officePrice: 460, homePrice: 720 },
+    { name: "سوق أهراس", officePrice: 440, homePrice: 690 },
+    { name: "تيبازة", officePrice: 360, homePrice: 590 },
+    { name: "ميلة", officePrice: 420, homePrice: 670 },
+    { name: "عين الدفلى", officePrice: 380, homePrice: 620 },
+    { name: "النعامة", officePrice: 480, homePrice: 740 },
+    { name: "عين تموشنت", officePrice: 420, homePrice: 670 },
+    { name: "غرداية", officePrice: 500, homePrice: 780 },
+    { name: "غليزان", officePrice: 420, homePrice: 670 },
+    { name: "تيميمون", officePrice: 580, homePrice: 880 },
+    { name: "برج باجي مختار", officePrice: 620, homePrice: 950 },
+    { name: "أولاد جلال", officePrice: 520, homePrice: 800 },
+    { name: "بني عباس", officePrice: 580, homePrice: 880 },
+    { name: "عين صالح", officePrice: 600, homePrice: 920 },
+    { name: "عين قزام", officePrice: 650, homePrice: 980 },
+    { name: "تقرت", officePrice: 510, homePrice: 790 },
+    { name: "جانت", officePrice: 680, homePrice: 1000 },
+    { name: "المغير", officePrice: 520, homePrice: 800 },
+    { name: "المنيعة", officePrice: 540, homePrice: 830 }
 ];
 
-// ========== حساب سعر التوصيل ==========
-function getShippingPrice(state, deliveryType) {
-    if (!state) return 0;
-    let base = deliveryType === "home" ? 600 : 400;
-    const farStates = ["تبسة", "ورقلة", "بسكرة", "خنشلة", "الطارف"];
-    if (farStates.includes(state) && deliveryType === "home") base += 150;
-    return base;
+// ========== دوال حساب التوصيل ==========
+function getShippingPrice(stateName, deliveryType) {
+    if (!stateName) return 0;
+    const state = ALGERIA_STATES_WITH_PRICES.find(s => s.name === stateName);
+    if (!state) return deliveryType === "home" ? 600 : 400;
+    
+    return deliveryType === "home" ? state.homePrice : state.officePrice;
 }
 
 // ========== إرسال الطلب إلى API ==========
@@ -200,7 +189,6 @@ async function sendToTelegram(orderData) {
             const result = await response.json();
             return result.ok === true;
         } else {
-            // وضع تجريبي لحفظ الطلبات محلياً
             console.warn("API endpoint not available - saving order locally");
             const mockOrders = JSON.parse(localStorage.getItem("demo_orders") || "[]");
             mockOrders.push({ ...orderData, timestamp: new Date().toISOString() });
@@ -315,34 +303,11 @@ async function submitOrder() {
 }
 
 // ========== معالجة أخطاء الصورة ==========
-function handleImageError(event) {
+function handleImageError() {
     if (!state.imageError) {
-        console.warn("الصورة المحلية غير موجودة: images/nassim.png");
         state.imageError = true;
         render();
     }
-}
-
-// ========== تحسين التنقل بين الخانات ==========
-function setupTabNavigation() {
-    const inputs = document.querySelectorAll('input, select, button');
-    inputs.forEach((input, index) => {
-        if (input.tagName !== 'BUTTON') {
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const nextInput = inputs[index + 1];
-                    if (nextInput && nextInput.tagName !== 'BUTTON') {
-                        nextInput.focus();
-                    } else if (nextInput && nextInput.tagName === 'BUTTON') {
-                        submitOrder();
-                    } else {
-                        submitOrder();
-                    }
-                }
-            });
-        }
-    });
 }
 
 // ========== عرض الواجهة ==========
@@ -350,9 +315,20 @@ function render() {
     const root = document.getElementById("root");
     if (!root) return;
     
-    const shippingPrice = (state.wilaya) ? getShippingPrice(state.wilaya, state.delivery) : 0;
+    const shippingPrice = state.wilaya ? getShippingPrice(state.wilaya, state.delivery) : 0;
     const totalPrice = finalPrice + shippingPrice;
     const isDisabled = state.loading;
+    
+    // الحصول على سعر التوصيل للولاية المحددة (للعرض)
+    let selectedStateOfficePrice = 0;
+    let selectedStateHomePrice = 0;
+    if (state.wilaya) {
+        const selectedState = ALGERIA_STATES_WITH_PRICES.find(s => s.name === state.wilaya);
+        if (selectedState) {
+            selectedStateOfficePrice = selectedState.officePrice;
+            selectedStateHomePrice = selectedState.homePrice;
+        }
+    }
     
     const messageHtml = state.message.text ? 
         `<div class="mt-4 p-3 rounded-xl text-center font-medium transition-all success-toast shadow-md 
@@ -365,15 +341,14 @@ function render() {
         `<span class="inline-flex items-center justify-center"><span>جاري الإرسال</span><span class="loading-spinner"></span></span>` 
         : '<span><i class="fas fa-check-circle ml-2"></i> تأكيد الطلب الآن</span>';
     
-    // تحديد مصدر الصورة (مع إمكانية الفشل إلى الصورة الاحتياطية)
     const imageSrc = state.imageError ? PRODUCT.imageFallback : PRODUCT.image;
     
     const html = `
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden card-hover transition-all duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
             <div class="relative bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-center">
                 <span class="text-white text-sm font-bold tracking-wide flex items-center justify-center gap-2">
                     <i class="fas fa-gem"></i>
-                    ${PRODUCT.badge}
+                    🔥 خصم 28% لفترة محدودة
                 </span>
             </div>
             <div class="p-6 md:p-8">
@@ -383,36 +358,29 @@ function render() {
                 </h1>
                 
                 <div class="grid md:grid-cols-2 gap-8 items-start">
-                    <!-- قسم الصورة المحلية -->
+                    <!-- قسم الصورة -->
                     <div class="relative group">
-                        <div class="rounded-2xl overflow-hidden shadow-xl product-image-container bg-gradient-to-br from-amber-50 to-orange-100">
+                        <div class="rounded-2xl overflow-hidden shadow-xl product-image-container">
                             <img src="${imageSrc}" 
-                                 alt="ساعة ذكية VIP MAX - صورة المنتج" 
+                                 alt="ساعة ذكية VIP MAX" 
                                  class="w-full h-auto object-contain transform transition duration-300 group-hover:scale-105"
-                                 style="min-height: 350px; max-height: 400px; width: 100%;"
-                                 onerror="handleImageErrorFromRender(event)"
+                                 style="min-height: 300px; max-height: 380px; width: 100%;"
+                                 onerror="handleImageError()"
                                  loading="eager">
-                            ${!state.imageError ? '<div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>' : ''}
                         </div>
-                        ${!state.imageError ? `
-                        <div class="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg transform rotate-3">
+                        <div class="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                             <i class="fas fa-tag ml-1"></i> خصم ${PRODUCT.discount}%
                         </div>
-                        <div class="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg text-xs backdrop-blur-sm">
-                            <i class="fas fa-shield-alt ml-1"></i> ضمان لمدة عام
-                        </div>
-                        ` : ''}
                         <div class="mt-4 text-center space-y-2">
                             <div class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 px-5 py-2 rounded-full shadow-sm">
                                 <span class="text-gray-500 line-through text-lg">${PRODUCT.price.toLocaleString()} دج</span>
                                 <span class="text-2xl font-bold text-green-700">${finalPrice.toLocaleString()} دج</span>
                             </div>
-                            <p class="text-xs text-gray-500"><i class="fas fa-truck ml-1 text-amber-600"></i> توصيل سريع لجميع الولايات (2-5 أيام)</p>
-                            ${state.imageError ? '<p class="text-xs text-amber-600 mt-1"><i class="fas fa-image ml-1"></i> ملاحظة: يرجى التأكد من وجود الصورة في مجلد images/nassim.png</p>' : ''}
+                            <p class="text-xs text-gray-500"><i class="fas fa-truck ml-1 text-amber-600"></i> توصيل سريع لجميع الولايات</p>
                         </div>
                     </div>
                     
-                    <!-- نموذج الطلب مع تحسين التنقل -->
+                    <!-- نموذج الطلب -->
                     <div class="space-y-4 bg-gradient-to-br from-gray-50 to-white p-5 rounded-2xl shadow-lg border border-gray-100">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -420,16 +388,16 @@ function render() {
                                     <i class="fas fa-user ml-1 text-amber-600"></i> الاسم <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="firstNameInput" value="${escapeHtml(state.firstName)}" 
-                                       class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
-                                       placeholder="أحمد" autocomplete="given-name" tabindex="1">
+                                       class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400"
+                                       placeholder="أحمد">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">
                                     <i class="fas fa-user ml-1 text-amber-600"></i> اللقب <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="lastNameInput" value="${escapeHtml(state.lastName)}" 
-                                       class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
-                                       placeholder="بن علي" autocomplete="family-name" tabindex="2">
+                                       class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400"
+                                       placeholder="بن علي">
                             </div>
                         </div>
                         
@@ -438,19 +406,26 @@ function render() {
                                 <i class="fas fa-phone ml-1 text-amber-600"></i> رقم الهاتف <span class="text-red-500">*</span>
                             </label>
                             <input type="tel" id="phoneInput" value="${escapeHtml(state.phone)}" 
-                                   class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" 
-                                   placeholder="05 XX XX XX XX" dir="ltr" autocomplete="tel" tabindex="3">
-                            <p class="text-xs text-gray-400 mt-1"><i class="fas fa-info-circle ml-1"></i> أدخل رقم هاتف صحيح للتواصل معك</p>
+                                   class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400" 
+                                   placeholder="05 XX XX XX XX" dir="ltr">
+                            <p class="text-xs text-gray-400 mt-1"><i class="fas fa-info-circle ml-1"></i> أدخل رقم هاتف صحيح للتواصل</p>
                         </div>
                         
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">
                                 <i class="fas fa-map-marker-alt ml-1 text-amber-600"></i> الولاية <span class="text-red-500">*</span>
                             </label>
-                            <select id="wilayaSelect" class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200" tabindex="4">
+                            <select id="wilayaSelect" class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400">
                                 <option value="">-- اختر الولاية --</option>
-                                ${ALGERIA_STATES.map(w => `<option value="${escapeHtml(w)}" ${state.wilaya === w ? 'selected' : ''}>${escapeHtml(w)}</option>`).join('')}
+                                ${ALGERIA_STATES_WITH_PRICES.map(w => `<option value="${escapeHtml(w.name)}" ${state.wilaya === w.name ? 'selected' : ''}>${escapeHtml(w.name)}</option>`).join('')}
                             </select>
+                            ${state.wilaya && selectedStateOfficePrice > 0 ? `
+                                <p class="text-xs text-green-600 mt-1">
+                                    <i class="fas fa-info-circle ml-1"></i> 
+                                    التوصيل للمكتب: ${selectedStateOfficePrice} دج | 
+                                    التوصيل للمنزل: ${selectedStateHomePrice} دج
+                                </p>
+                            ` : ''}
                         </div>
                         
                         <div>
@@ -459,12 +434,12 @@ function render() {
                             </label>
                             <div class="flex gap-3 bg-white p-2 rounded-xl border-2 border-gray-200">
                                 <label class="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg cursor-pointer transition ${state.delivery === 'office' ? 'bg-amber-100 text-amber-800 border-2 border-amber-300' : 'bg-gray-50 border border-gray-200'}">
-                                    <input type="radio" name="deliveryMethod" value="office" ${state.delivery === 'office' ? 'checked' : ''} class="hidden" tabindex="5">
+                                    <input type="radio" name="deliveryMethod" value="office" ${state.delivery === 'office' ? 'checked' : ''} class="hidden">
                                     <i class="fas fa-building"></i>
                                     <span>استلام من مكتب</span>
                                 </label>
                                 <label class="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg cursor-pointer transition ${state.delivery === 'home' ? 'bg-amber-100 text-amber-800 border-2 border-amber-300' : 'bg-gray-50 border border-gray-200'}">
-                                    <input type="radio" name="deliveryMethod" value="home" ${state.delivery === 'home' ? 'checked' : ''} class="hidden" tabindex="6">
+                                    <input type="radio" name="deliveryMethod" value="home" ${state.delivery === 'home' ? 'checked' : ''} class="hidden">
                                     <i class="fas fa-home"></i>
                                     <span>توصيل للمنزل</span>
                                 </label>
@@ -478,7 +453,7 @@ function render() {
                                 <span class="font-bold">${finalPrice.toLocaleString()} دج</span>
                             </div>
                             <div class="flex justify-between text-sm border-t border-gray-600 pt-1">
-                                <span>🚚 رسوم التوصيل:</span>
+                                <span>🚚 رسوم التوصيل (${state.delivery === 'office' ? 'مكتب' : 'منزل'}):</span>
                                 <span class="font-bold">${shippingPrice.toLocaleString()} دج</span>
                             </div>
                             <div class="flex justify-between text-lg font-bold border-t-2 border-amber-500 mt-1 pt-2">
@@ -491,9 +466,8 @@ function render() {
                         </div>
                         
                         <button id="submitOrderBtn" 
-                                class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white p-3 rounded-xl btn-glow font-bold text-lg flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed" 
-                                ${isDisabled ? 'disabled' : ''}
-                                tabindex="7">
+                                class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white p-3 rounded-xl btn-glow font-bold text-lg flex items-center justify-center gap-2 transition-all disabled:opacity-70" 
+                                ${isDisabled ? 'disabled' : ''}>
                             ${buttonContent}
                         </button>
                         
@@ -508,7 +482,7 @@ function render() {
                 </div>
             </div>
             <div class="bg-gray-100 text-center py-3 text-xs text-gray-500 border-t">
-                <span>متجر VIP ™ - تسوق آمن مع خدمة التوصيل السريع إلى جميع ولايات الجزائر</span>
+                <span>متجر VIP ™ - خدمة التوصيل إلى جميع ولايات الجزائر الـ 58</span>
             </div>
         </div>
     `;
@@ -516,78 +490,20 @@ function render() {
     root.innerHTML = html;
     
     // ربط الأحداث
-    const firstNameEl = document.getElementById("firstNameInput");
-    const lastNameEl = document.getElementById("lastNameInput");
-    const phoneEl = document.getElementById("phoneInput");
-    const wilayaEl = document.getElementById("wilayaSelect");
+    document.getElementById("firstNameInput")?.addEventListener("input", (e) => { state.firstName = e.target.value; });
+    document.getElementById("lastNameInput")?.addEventListener("input", (e) => { state.lastName = e.target.value; });
+    document.getElementById("phoneInput")?.addEventListener("input", (e) => { state.phone = e.target.value; });
+    document.getElementById("wilayaSelect")?.addEventListener("change", (e) => { state.wilaya = e.target.value; render(); });
+    
     const radioOffice = document.querySelector("input[value='office']");
     const radioHome = document.querySelector("input[value='home']");
-    const submitBtn = document.getElementById("submitOrderBtn");
+    if (radioOffice) radioOffice.addEventListener("change", (e) => { if(e.target.checked) { state.delivery = "office"; render(); } });
+    if (radioHome) radioHome.addEventListener("change", (e) => { if(e.target.checked) { state.delivery = "home"; render(); } });
     
-    if (firstNameEl) {
-        firstNameEl.addEventListener("input", (e) => { state.firstName = e.target.value; });
-        firstNameEl.addEventListener("keypress", handleEnterKey);
-    }
-    if (lastNameEl) {
-        lastNameEl.addEventListener("input", (e) => { state.lastName = e.target.value; });
-        lastNameEl.addEventListener("keypress", handleEnterKey);
-    }
-    if (phoneEl) {
-        phoneEl.addEventListener("input", (e) => { state.phone = e.target.value; });
-        phoneEl.addEventListener("keypress", handleEnterKey);
-    }
-    if (wilayaEl) {
-        wilayaEl.addEventListener("change", (e) => { state.wilaya = e.target.value; render(); });
-        wilayaEl.addEventListener("keypress", handleEnterKey);
-    }
-    
-    if (radioOffice) {
-        radioOffice.addEventListener("change", (e) => { if(e.target.checked) { state.delivery = "office"; render(); } });
-    }
-    if (radioHome) {
-        radioHome.addEventListener("change", (e) => { if(e.target.checked) { state.delivery = "home"; render(); } });
-    }
-    
-    if (submitBtn) {
-        submitBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            if (!state.loading) submitOrder();
-        });
-    }
-    
-    // إضافة معالج خطأ الصورة عالميًا
-    window.handleImageErrorFromRender = function(event) {
-        if (!state.imageError) {
-            console.log("⚠️ الصورة المحلية غير موجودة: images/nassim.png - جاري استخدام الصورة الاحتياطية");
-            state.imageError = true;
-            render();
-        }
-    };
-    
-    // تحسين التنقل بين الخانات
-    setupTabNavigation();
-}
-
-// معالج مفتاح Enter للتنقل السلس
-function handleEnterKey(e) {
-    if (e.key === 'Enter') {
+    document.getElementById("submitOrderBtn")?.addEventListener("click", (e) => {
         e.preventDefault();
-        const inputs = ['firstNameInput', 'lastNameInput', 'phoneInput', 'wilayaSelect'];
-        const currentId = e.target.id;
-        const currentIndex = inputs.indexOf(currentId);
-        
-        if (currentIndex !== -1 && currentIndex < inputs.length - 1) {
-            const nextInput = document.getElementById(inputs[currentIndex + 1]);
-            if (nextInput) {
-                nextInput.focus();
-                if (nextInput.tagName === 'SELECT') {
-                    nextInput.click();
-                }
-            }
-        } else if (currentIndex === inputs.length - 1) {
-            submitOrder();
-        }
-    }
+        if (!state.loading) submitOrder();
+    });
 }
 
 function escapeHtml(str) {
@@ -600,16 +516,8 @@ function escapeHtml(str) {
     });
 }
 
-function setupTabNavigation() {
-    const focusableElements = document.querySelectorAll('input, select, button');
-    if (focusableElements.length > 0) {
-        focusableElements.forEach((el, idx) => {
-            if (el.tagName !== 'BUTTON') {
-                el.setAttribute('tabindex', idx + 1);
-            }
-        });
-    }
-}
+// تعريف الدوال العامة
+window.handleImageError = handleImageError;
 
 // بدء التطبيق
 render();
