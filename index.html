@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>متجر VIP | ساعة برو MAX - اطلب الآن</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر VIP | ساعة برو MAX</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -18,22 +18,10 @@
             background-clip: text;
             color: transparent;
         }
-        .btn-glow { 
-            transition: all 0.3s ease;
-        }
-        .btn-glow:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
-        }
-        input, select { 
-            transition: all 0.2s ease; 
-            border: 2px solid #e5e7eb; 
-        }
-        input:focus, select:focus { 
-            border-color: #f59e0b; 
-            outline: none; 
-            box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
-        }
+        .btn-glow { transition: all 0.3s ease; }
+        .btn-glow:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+        input, select { transition: all 0.2s ease; border: 2px solid #e5e7eb; }
+        input:focus, select:focus { border-color: #f59e0b; outline: none; box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -46,64 +34,32 @@
             vertical-align: middle;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
         .success-toast {
             animation: fadeSlide 0.4s ease-out;
         }
         @keyframes fadeSlide {
-            from {
-                opacity: 0;
-                transform: translateY(-15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .product-image-container {
-            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
-            border-radius: 1rem;
-            overflow: hidden;
-        }
-        
-        .product-image-container img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            transition: transform 0.3s ease;
-        }
-        
-        .product-image-container:hover img {
-            transform: scale(1.05);
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-amber-50 via-orange-50 to-gray-100 font-sans">
+<body class="bg-gradient-to-br from-gray-100 to-gray-200">
 
 <div id="root" class="max-w-5xl mx-auto p-4 md:p-6"></div>
 
 <script>
-// ========== إعدادات تيليغرام ==========
-// ⚠️ مهم: قم باستبدال هذه القيم ببيانات البوت الخاص بك
-const TELEGRAM_CONFIG = {
-    botToken: "YOUR_BOT_TOKEN_HERE",  // ضع توكن البوت هنا (مثال: 1234567890:ABCdefGHIjklmNOPqrstUVwxyz)
-    chatId: "YOUR_CHAT_ID_HERE"       // ضع معرف الشات أو القناة هنا (مثال: -1001234567890)
-};
-
 // ========== بيانات المنتج ==========
 const PRODUCT = {
-    name: "🔥 ساعة ذكية برو MAX | إصدار VIP",
+    name: "🔥 ساعة ذكية برو MAX",
     price: 12990,
     discount: 28,
-    image: "images/nassim.png",
-    imageFallback: "https://placehold.co/600x500/1e293b/f59e0b?text=⌚+ساعة+VIP+MAX&font=roboto"
+    image: "images/nassim.png"
 };
 
 const finalPrice = Math.round(PRODUCT.price * (1 - PRODUCT.discount / 100));
 
 // ========== جميع ولايات الجزائر (58 ولاية) مع أسعار التوصيل ==========
-const ALGERIA_STATES_WITH_PRICES = [
+const ALGERIA_STATES = [
     { name: "أدرار", officePrice: 500, homePrice: 800 },
     { name: "الشلف", officePrice: 400, homePrice: 650 },
     { name: "الأغواط", officePrice: 480, homePrice: 750 },
@@ -125,7 +81,7 @@ const ALGERIA_STATES_WITH_PRICES = [
     { name: "سطيف", officePrice: 380, homePrice: 620 },
     { name: "سعيدة", officePrice: 430, homePrice: 680 },
     { name: "سكيكدة", officePrice: 410, homePrice: 660 },
-    { name: "بلعباس", officePrice: 420, homePrice: 670 },
+    { name: "سيدي بلعباس", officePrice: 420, homePrice: 670 },
     { name: "عنابة", officePrice: 380, homePrice: 620 },
     { name: "قالمة", officePrice: 420, homePrice: 670 },
     { name: "قسنطينة", officePrice: 370, homePrice: 600 },
@@ -164,436 +120,200 @@ const ALGERIA_STATES_WITH_PRICES = [
     { name: "المنيعة", officePrice: 540, homePrice: 830 }
 ];
 
-// ========== حساب سعر التوصيل ==========
+// ========== حساب التوصيل ==========
 function getShippingPrice(stateName, deliveryType) {
     if (!stateName) return 0;
-    const state = ALGERIA_STATES_WITH_PRICES.find(s => s.name === stateName);
+    const state = ALGERIA_STATES.find(s => s.name === stateName);
     if (!state) return deliveryType === "home" ? 600 : 400;
     return deliveryType === "home" ? state.homePrice : state.officePrice;
 }
 
-// ========== إرسال الطلب إلى تيليغرام ==========
+// ========== إرسال إلى API الآمن ==========
 async function sendToTelegram(orderData) {
-    // التحقق من إعدادات البوت
-    if (TELEGRAM_CONFIG.botToken === "YOUR_BOT_TOKEN_HERE" || TELEGRAM_CONFIG.chatId === "YOUR_CHAT_ID_HERE") {
-        console.warn("⚠️ لم يتم إعداد بوت تيليغرام بشكل صحيح. يرجى إضافة التوكن ومعرف الشات.");
-        
-        // عرض تنبيه للمستخدم في وضع التجربة
-        const mockOrders = JSON.parse(localStorage.getItem("demo_orders") || "[]");
-        mockOrders.push({ ...orderData, timestamp: new Date().toISOString(), demoMode: true });
-        localStorage.setItem("demo_orders", JSON.stringify(mockOrders));
-        
-        // إظهار رسالة للمستخدم
-        alert("⚠️ تنبيه تجريبي: لم يتم إعداد بوت تيليغرام بعد.\n\nللإعداد الفعلي:\n1. احصل على توكن البوت من @BotFather\n2. احصل على معرف الشات من @userinfobot\n3. قم بتعديل المتغيرات TELEGRAM_CONFIG في الكود\n\nحالياً يتم حفظ الطلبات محلياً للتجربة.");
-        
-        return false;
-    }
-    
     try {
-        // تنسيق الرسالة بشكل جميل
-        const message = `🛍️ *طلب جديد من متجر VIP*\n\n` +
-                       `👤 *العميل:* ${orderData.firstName} ${orderData.lastName}\n` +
-                       `📞 *الهاتف:* ${orderData.phone}\n` +
-                       `📍 *الولاية:* ${orderData.state}\n` +
-                       `🚚 *نوع التوصيل:* ${orderData.deliveryType === 'office' ? 'استلام من مكتب' : 'توصيل للمنزل'}\n` +
-                       `💰 *سعر المنتج:* ${orderData.finalPrice.toLocaleString()} دج\n` +
-                       `🚛 *رسوم التوصيل:* ${orderData.shipping.toLocaleString()} دج\n` +
-                       `💎 *الإجمالي:* ${orderData.total.toLocaleString()} دج\n` +
-                       `🕐 *تاريخ الطلب:* ${new Date(orderData.orderDate).toLocaleString('ar-DZ')}\n\n` +
-                       `✨ *المنتج:* ${orderData.productName}\n\n` +
-                       `✅ *حالة الطلب:* قيد المراجعة`;
-        
-        // إرسال إلى API تيليغرام
-        const url = `https://api.telegram.org/bot${TELEGRAM_CONFIG.botToken}/sendMessage`;
-        const response = await fetch(url, {
+        const response = await fetch("/api/send-order", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                chat_id: TELEGRAM_CONFIG.chatId,
-                text: message,
-                parse_mode: "Markdown",
-                disable_web_page_preview: true
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderData)
         });
-        
         const result = await response.json();
-        
-        if (result.ok) {
-            console.log("✅ تم إرسال الطلب إلى تيليغرام بنجاح");
-            return true;
-        } else {
-            console.error("❌ فشل إرسال الطلب إلى تيليغرام:", result.description);
-            return false;
-        }
+        return result.ok === true;
     } catch (err) {
-        console.error("❌ خطأ في الاتصال:", err);
+        console.error(err);
         return false;
     }
 }
 
-// ========== الحالة الرئيسية ==========
-let state = {
+// ========== الحالة ==========
+let formData = {
     firstName: "",
     lastName: "",
     phone: "",
     wilaya: "",
     delivery: "office",
     loading: false,
-    message: { text: "", type: "" },
-    imageError: false
+    message: "",
+    messageType: "error"
 };
 
-// ========== دوال مساعدة ==========
-function updateMessage(msg, type = "error") {
-    state.message = { text: msg, type: type };
-    render();
-    if (type === "success") {
-        setTimeout(() => {
-            if (state.message.text === msg) {
-                state.message = { text: "", type: "" };
-                render();
-            }
-        }, 5000);
-    }
-}
-
-function validatePhone(phone) {
-    const cleaned = phone.replace(/\s/g, '');
-    const algerianRegex = /^(05|06|07)\d{8}$/;
-    if (algerianRegex.test(cleaned)) return true;
-    if (/^\d{9,12}$/.test(cleaned)) return true;
-    return false;
-}
-
-// ========== إرسال الطلب ==========
-async function submitOrder() {
-    if (!state.firstName.trim()) {
-        updateMessage("⚠️ الرجاء إدخال الاسم", "error");
-        document.getElementById("firstNameInput")?.focus();
-        return;
-    }
-    if (!state.lastName.trim()) {
-        updateMessage("⚠️ الرجاء إدخال اللقب", "error");
-        document.getElementById("lastNameInput")?.focus();
-        return;
-    }
-    if (!state.phone.trim()) {
-        updateMessage("📱 الرجاء إدخال رقم الهاتف", "error");
-        document.getElementById("phoneInput")?.focus();
-        return;
-    }
-    if (!validatePhone(state.phone.trim())) {
-        updateMessage("📞 رقم هاتف غير صالح (مثال: 0555123456)", "error");
-        document.getElementById("phoneInput")?.focus();
-        return;
-    }
-    if (!state.wilaya) {
-        updateMessage("📍 الرجاء اختيار الولاية", "error");
-        document.getElementById("wilayaSelect")?.focus();
-        return;
-    }
-
-    state.loading = true;
-    render();
-
-    const shippingPrice = getShippingPrice(state.wilaya, state.delivery);
-    const totalAmount = finalPrice + shippingPrice;
-
-    const orderPayload = {
-        firstName: state.firstName.trim(),
-        lastName: state.lastName.trim(),
-        phone: state.phone.trim(),
-        state: state.wilaya,
-        deliveryType: state.delivery,
-        shipping: shippingPrice,
-        total: totalAmount,
-        productName: PRODUCT.name,
-        finalPrice: finalPrice,
-        orderDate: new Date().toISOString()
-    };
-
-    const success = await sendToTelegram(orderPayload);
-    
-    state.loading = false;
-
-    if (success) {
-        // حفظ الطلب في localStorage كنسخة احتياطية
-        const orders = JSON.parse(localStorage.getItem("sent_orders") || "[]");
-        orders.push({ ...orderPayload, sentAt: new Date().toISOString() });
-        localStorage.setItem("sent_orders", JSON.stringify(orders));
-        
-        // مسح الحقول
-        state.firstName = "";
-        state.lastName = "";
-        state.phone = "";
-        state.wilaya = "";
-        state.delivery = "office";
-        updateMessage("✅ تم إرسال طلبك بنجاح! سيتصل بك فريق الدعم خلال 24 ساعة.", "success");
-    } else {
-        updateMessage("❌ حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى أو الاتصال بالدعم.", "error");
-    }
-    render();
-}
-
-// ========== معالجة أخطاء الصورة ==========
-function handleImageError() {
-    if (!state.imageError) {
-        state.imageError = true;
-        render();
-    }
-}
-
-// ========== عرض إعدادات البوت في وحدة التحكم ==========
-function logBotSetupInstructions() {
-    console.log("%c📢 إعداد بوت تيليغرام", "color: #f59e0b; font-size: 16px; font-weight: bold;");
-    console.log("1️⃣ افتح تطبيق تيليغرام وابحث عن @BotFather");
-    console.log("2️⃣ أرسل الأمر /newbot وأنشئ بوت جديد");
-    console.log("3️⃣ احصل على التوكن (مثال: 1234567890:ABCdefGHIjklmNOPqrstUVwxyz)");
-    console.log("4️⃣ ابحث عن @userinfobot وأرسل له أي رسالة لتحصل على معرف الشات");
-    console.log("5️⃣ قم بتعديل المتغيرات في بداية الكود:");
-    console.log("   - TELEGRAM_CONFIG.botToken = 'التوكن الخاص بك'");
-    console.log("   - TELEGRAM_CONFIG.chatId = 'معرف الشات'");
-    console.log("%c⚠️ ملاحظة: في الوقت الحالي يتم حفظ الطلبات محلياً فقط للتجربة", "color: #ef4444;");
-}
-
-// ========== عرض الواجهة ==========
+// ========== الواجهة ==========
 function render() {
-    const root = document.getElementById("root");
-    if (!root) return;
-    
-    const shippingPrice = state.wilaya ? getShippingPrice(state.wilaya, state.delivery) : 0;
-    const totalPrice = finalPrice + shippingPrice;
-    const isDisabled = state.loading;
-    
-    let selectedStateOfficePrice = 0;
-    let selectedStateHomePrice = 0;
-    if (state.wilaya) {
-        const selectedState = ALGERIA_STATES_WITH_PRICES.find(s => s.name === state.wilaya);
-        if (selectedState) {
-            selectedStateOfficePrice = selectedState.officePrice;
-            selectedStateHomePrice = selectedState.homePrice;
-        }
+    const shipping = getShippingPrice(formData.wilaya, formData.delivery);
+    const total = finalPrice + shipping;
+
+    let selectedState = null;
+    if (formData.wilaya) {
+        selectedState = ALGERIA_STATES.find(s => s.name === formData.wilaya);
     }
-    
-    // التحقق من إعدادات البوت
-    const isBotConfigured = TELEGRAM_CONFIG.botToken !== "YOUR_BOT_TOKEN_HERE" && TELEGRAM_CONFIG.chatId !== "YOUR_CHAT_ID_HERE";
-    const setupWarning = !isBotConfigured ? 
-        `<div class="mb-4 p-3 bg-yellow-50 border-r-4 border-yellow-500 rounded-lg text-xs text-yellow-800">
-            <i class="fas fa-exclamation-triangle ml-2"></i>
-            ⚠️ لم يتم إعداد بوت تيليغرام بعد. الطلبات حالياً تحفظ محلياً فقط. 
-            <button onclick="showSetupInstructions()" class="text-amber-600 underline font-bold">انقر لمعرفة طريقة الإعداد</button>
+
+    const messageHtml = formData.message ? 
+        `<div class="mt-3 p-3 rounded-xl text-center font-medium transition-all success-toast shadow-md 
+            ${formData.messageType === 'success' ? 'bg-emerald-100 text-emerald-800 border-r-4 border-emerald-500' : 'bg-red-100 text-red-800 border-r-4 border-red-500'}">
+            <i class="fas ${formData.messageType === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} ml-2"></i>
+            ${formData.message}
         </div>` : '';
-    
-    const messageHtml = state.message.text ? 
-        `<div class="mt-4 p-3 rounded-xl text-center font-medium transition-all success-toast shadow-md 
-            ${state.message.type === 'success' ? 'bg-emerald-100 text-emerald-800 border-r-4 border-emerald-500' : 'bg-red-100 text-red-800 border-r-4 border-red-500'}">
-            <i class="fas ${state.message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} ml-2"></i>
-            ${state.message.text}
-        </div>` : '';
-    
-    const buttonContent = state.loading ? 
+
+    const buttonContent = formData.loading ? 
         `<span class="inline-flex items-center justify-center"><span>جاري الإرسال</span><span class="loading-spinner"></span></span>` 
-        : '<span><i class="fas fa-paper-plane ml-2"></i> تأكيد الطلب وإرسال</span>';
-    
-    const imageSrc = state.imageError ? PRODUCT.imageFallback : PRODUCT.image;
-    
-    const html = `
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
-            <div class="relative bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-3 text-center">
-                <span class="text-white text-sm font-bold tracking-wide flex items-center justify-center gap-2">
-                    <i class="fab fa-telegram"></i>
-                    📦 طلبك يصل مباشرة لتيليغرام
+        : '<span><i class="fas fa-paper-plane ml-2"></i> تأكيد الطلب</span>';
+
+    document.getElementById("root").innerHTML = `
+        <div class="bg-white rounded-3xl shadow-2xl p-6">
+            <div class="relative bg-gradient-to-r from-amber-600 to-orange-600 -mt-6 -mx-6 mb-6 px-6 py-3 rounded-t-3xl text-center">
+                <span class="text-white text-sm font-bold tracking-wide">
+                    <i class="fab fa-telegram ml-1"></i> الطلبات ترسل مباشرة إلى تيليغرام
                 </span>
             </div>
-            <div class="p-6 md:p-8">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-center title-float mb-6 flex items-center justify-center gap-2 flex-wrap">
-                    <i class="fas fa-crown text-amber-500 text-3xl"></i>
-                    ${PRODUCT.name}
-                </h1>
-                
-                ${setupWarning}
-                
-                <div class="grid md:grid-cols-2 gap-8 items-start">
-                    <!-- قسم الصورة -->
-                    <div class="relative group">
-                        <div class="rounded-2xl overflow-hidden shadow-xl product-image-container">
-                            <img src="${imageSrc}" 
-                                 alt="ساعة ذكية VIP MAX" 
-                                 class="w-full h-auto object-contain transform transition duration-300 group-hover:scale-105"
-                                 style="min-height: 300px; max-height: 380px; width: 100%;"
-                                 onerror="handleImageError()"
-                                 loading="eager">
-                        </div>
-                        <div class="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                            <i class="fas fa-tag ml-1"></i> خصم ${PRODUCT.discount}%
-                        </div>
-                        <div class="mt-4 text-center space-y-2">
-                            <div class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 px-5 py-2 rounded-full shadow-sm">
-                                <span class="text-gray-500 line-through text-lg">${PRODUCT.price.toLocaleString()} دج</span>
-                                <span class="text-2xl font-bold text-green-700">${finalPrice.toLocaleString()} دج</span>
-                            </div>
-                            <p class="text-xs text-gray-500"><i class="fas fa-truck ml-1 text-amber-600"></i> توصيل سريع لجميع الولايات</p>
-                        </div>
-                    </div>
-                    
-                    <!-- نموذج الطلب -->
-                    <div class="space-y-4 bg-gradient-to-br from-gray-50 to-white p-5 rounded-2xl shadow-lg border border-gray-100">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">
-                                    <i class="fas fa-user ml-1 text-amber-600"></i> الاسم <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="firstNameInput" value="${escapeHtml(state.firstName)}" 
-                                       class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400"
-                                       placeholder="أحمد">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">
-                                    <i class="fas fa-user ml-1 text-amber-600"></i> اللقب <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="lastNameInput" value="${escapeHtml(state.lastName)}" 
-                                       class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400"
-                                       placeholder="بن علي">
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">
-                                <i class="fas fa-phone ml-1 text-amber-600"></i> رقم الهاتف <span class="text-red-500">*</span>
-                            </label>
-                            <input type="tel" id="phoneInput" value="${escapeHtml(state.phone)}" 
-                                   class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400" 
-                                   placeholder="05 XX XX XX XX" dir="ltr">
-                            <p class="text-xs text-gray-400 mt-1"><i class="fas fa-info-circle ml-1"></i> أدخل رقم هاتف صحيح للتواصل</p>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">
-                                <i class="fas fa-map-marker-alt ml-1 text-amber-600"></i> الولاية <span class="text-red-500">*</span>
-                            </label>
-                            <select id="wilayaSelect" class="w-full p-3 rounded-xl bg-white border-2 border-gray-200 focus:border-amber-400">
-                                <option value="">-- اختر الولاية --</option>
-                                ${ALGERIA_STATES_WITH_PRICES.map(w => `<option value="${escapeHtml(w.name)}" ${state.wilaya === w.name ? 'selected' : ''}>${escapeHtml(w.name)}</option>`).join('')}
-                            </select>
-                            ${state.wilaya && selectedStateOfficePrice > 0 ? `
-                                <p class="text-xs text-green-600 mt-1">
-                                    <i class="fas fa-info-circle ml-1"></i> 
-                                    📍 التوصيل للمكتب: ${selectedStateOfficePrice} دج | 🏠 التوصيل للمنزل: ${selectedStateHomePrice} دج
-                                </p>
-                            ` : ''}
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">
-                                <i class="fas fa-truck ml-1 text-amber-600"></i> طريقة الاستلام
-                            </label>
-                            <div class="flex gap-3 bg-white p-2 rounded-xl border-2 border-gray-200">
-                                <label class="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg cursor-pointer transition ${state.delivery === 'office' ? 'bg-amber-100 text-amber-800 border-2 border-amber-300' : 'bg-gray-50 border border-gray-200'}">
-                                    <input type="radio" name="deliveryMethod" value="office" ${state.delivery === 'office' ? 'checked' : ''} class="hidden">
-                                    <i class="fas fa-building"></i>
-                                    <span>استلام من مكتب</span>
-                                </label>
-                                <label class="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg cursor-pointer transition ${state.delivery === 'home' ? 'bg-amber-100 text-amber-800 border-2 border-amber-300' : 'bg-gray-50 border border-gray-200'}">
-                                    <input type="radio" name="deliveryMethod" value="home" ${state.delivery === 'home' ? 'checked' : ''} class="hidden">
-                                    <i class="fas fa-home"></i>
-                                    <span>توصيل للمنزل</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- تفاصيل السعر -->
-                        <div class="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-4 rounded-xl space-y-2 shadow-md">
-                            <div class="flex justify-between text-sm">
-                                <span>💰 سعر المنتج (بعد الخصم):</span>
-                                <span class="font-bold">${finalPrice.toLocaleString()} دج</span>
-                            </div>
-                            <div class="flex justify-between text-sm border-t border-gray-600 pt-1">
-                                <span>🚚 رسوم التوصيل (${state.delivery === 'office' ? 'مكتب' : 'منزل'}):</span>
-                                <span class="font-bold">${shippingPrice.toLocaleString()} دج</span>
-                            </div>
-                            <div class="flex justify-between text-lg font-bold border-t-2 border-amber-500 mt-1 pt-2">
-                                <span>💎 الإجمالي:</span>
-                                <span class="text-amber-400 text-xl">${totalPrice.toLocaleString()} دج</span>
-                            </div>
-                            <div class="text-xs text-gray-300 text-center mt-2">
-                                <i class="fas fa-hand-holding-usd ml-1"></i> دفع عند الاستلام - آمن ومضمون
-                            </div>
-                        </div>
-                        
-                        <button id="submitOrderBtn" 
-                                class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white p-3 rounded-xl btn-glow font-bold text-lg flex items-center justify-center gap-2 transition-all disabled:opacity-70" 
-                                ${isDisabled ? 'disabled' : ''}>
-                            ${buttonContent}
-                        </button>
-                        
-                        ${messageHtml}
-                        
-                        <div class="text-center text-xs text-gray-400 pt-2 border-t border-gray-200">
-                            <i class="fab fa-telegram ml-1 text-blue-500"></i> سيتم إرسال طلبك مباشرة عبر تيليغرام
-                            <span class="mx-2">•</span>
-                            <i class="fas fa-lock ml-1"></i> معلوماتك آمنة
-                        </div>
+
+            <h1 class="text-3xl font-bold text-center title-float mb-6">
+                <i class="fas fa-crown text-amber-500 ml-2"></i>
+                ${PRODUCT.name}
+            </h1>
+
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <div>
+                    <img src="${PRODUCT.image}" class="rounded-2xl shadow w-full" onerror="this.src='https://placehold.co/600x500/1e293b/f59e0b?text=⌚+ساعة+VIP'">
+                    <div class="mt-3 text-center">
+                        <span class="text-gray-500 line-through text-lg ml-2">${PRODUCT.price.toLocaleString()} دج</span>
+                        <span class="text-2xl font-bold text-green-700">${finalPrice.toLocaleString()} دج</span>
+                        <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs mr-2">خصم ${PRODUCT.discount}%</span>
                     </div>
                 </div>
-            </div>
-            <div class="bg-gray-100 text-center py-3 text-xs text-gray-500 border-t">
-                <span>متجر VIP ™ - خدمة التوصيل إلى جميع ولايات الجزائر الـ 58</span>
+
+                <div class="space-y-3">
+                    <input id="firstName" placeholder="الاسم" value="${formData.firstName}" class="w-full p-3 rounded-xl bg-gray-50 border-2 focus:border-amber-400">
+                    <input id="lastName" placeholder="اللقب" value="${formData.lastName}" class="w-full p-3 rounded-xl bg-gray-50 border-2 focus:border-amber-400">
+                    <input id="phone" placeholder="رقم الهاتف" value="${formData.phone}" class="w-full p-3 rounded-xl bg-gray-50 border-2 focus:border-amber-400" dir="ltr">
+
+                    <select id="wilaya" class="w-full p-3 rounded-xl bg-gray-50 border-2 focus:border-amber-400">
+                        <option value="">-- اختر الولاية --</option>
+                        ${ALGERIA_STATES.map(s => `<option value="${s.name}" ${formData.wilaya === s.name ? 'selected' : ''}>${s.name}</option>`).join("")}
+                    </select>
+                    
+                    ${selectedState ? `
+                        <div class="text-xs text-green-600 bg-green-50 p-2 rounded-lg">
+                            <i class="fas fa-info-circle ml-1"></i>
+                            التوصيل للمكتب: ${selectedState.officePrice} دج | التوصيل للمنزل: ${selectedState.homePrice} دج
+                        </div>
+                    ` : ''}
+
+                    <select id="delivery" class="w-full p-3 rounded-xl bg-gray-50 border-2 focus:border-amber-400">
+                        <option value="office" ${formData.delivery === 'office' ? 'selected' : ''}>📦 استلام من مكتب (التوصيل: ${shipping} دج)</option>
+                        <option value="home" ${formData.delivery === 'home' ? 'selected' : ''}>🏠 توصيل للمنزل (التوصيل: ${shipping} دج)</option>
+                    </select>
+
+                    <div class="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-4 rounded-xl">
+                        <div class="flex justify-between items-center">
+                            <span>💰 سعر المنتج:</span>
+                            <span>${finalPrice.toLocaleString()} دج</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span>🚚 رسوم التوصيل:</span>
+                            <span>${shipping.toLocaleString()} دج</span>
+                        </div>
+                        <div class="border-t border-gray-600 my-2"></div>
+                        <div class="flex justify-between items-center text-lg font-bold">
+                            <span>💎 المجموع النهائي:</span>
+                            <span class="text-amber-400">${Math.round(total).toLocaleString()} دج</span>
+                        </div>
+                    </div>
+
+                    <button id="btn" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white p-3 rounded-xl btn-glow font-bold text-lg flex items-center justify-center gap-2 transition-all" ${formData.loading ? 'disabled' : ''}>
+                        ${buttonContent}
+                    </button>
+
+                    ${messageHtml}
+                </div>
             </div>
         </div>
     `;
-    
-    root.innerHTML = html;
-    
-    // ربط الأحداث
-    document.getElementById("firstNameInput")?.addEventListener("input", (e) => { state.firstName = e.target.value; });
-    document.getElementById("lastNameInput")?.addEventListener("input", (e) => { state.lastName = e.target.value; });
-    document.getElementById("phoneInput")?.addEventListener("input", (e) => { state.phone = e.target.value; });
-    document.getElementById("wilayaSelect")?.addEventListener("change", (e) => { state.wilaya = e.target.value; render(); });
-    
-    const radioOffice = document.querySelector("input[value='office']");
-    const radioHome = document.querySelector("input[value='home']");
-    if (radioOffice) radioOffice.addEventListener("change", (e) => { if(e.target.checked) { state.delivery = "office"; render(); } });
-    if (radioHome) radioHome.addEventListener("change", (e) => { if(e.target.checked) { state.delivery = "home"; render(); } });
-    
-    document.getElementById("submitOrderBtn")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (!state.loading) submitOrder();
-    });
+
+    document.getElementById("firstName").oninput = e => formData.firstName = e.target.value;
+    document.getElementById("lastName").oninput = e => formData.lastName = e.target.value;
+    document.getElementById("phone").oninput = e => formData.phone = e.target.value;
+    document.getElementById("wilaya").onchange = e => { formData.wilaya = e.target.value; render(); };
+    document.getElementById("delivery").onchange = e => { formData.delivery = e.target.value; render(); };
+    document.getElementById("btn").onclick = submit;
 }
 
-// دالة عرض تعليمات الإعداد
-window.showSetupInstructions = function() {
-    alert("📢 طريقة إعداد بوت تيليغرام:\n\n" +
-          "1️⃣ افتح تيليغرام وابحث عن @BotFather\n" +
-          "2️⃣ أرسل الأمر /newbot لإنشاء بوت جديد\n" +
-          "3️⃣ اختر اسم للبوت ثم اسم مستخدم ينتهي بـ _bot\n" +
-          "4️⃣ ستحصل على توكن (Token) احفظه\n" +
-          "5️⃣ ابحث عن @userinfobot وأرسل له /start\n" +
-          "6️⃣ ستحصل على معرف الشات (Chat ID)\n" +
-          "7️⃣ افتح الكود وعدل المتغيرات في بداية الملف:\n" +
-          "   TELEGRAM_CONFIG.botToken = 'التوكن'\n" +
-          "   TELEGRAM_CONFIG.chatId = 'المعرف'\n\n" +
-          "💡 ملاحظة: يمكنك استخدام معرف قناتك أو معرفك الشخصي.");
-};
+// ========== إرسال الطلب ==========
+async function submit() {
+    if (!formData.firstName.trim()) {
+        formData.message = "⚠️ الرجاء إدخال الاسم";
+        formData.messageType = "error";
+        render();
+        return;
+    }
+    if (!formData.phone.trim()) {
+        formData.message = "⚠️ الرجاء إدخال رقم الهاتف";
+        formData.messageType = "error";
+        render();
+        return;
+    }
+    if (!formData.wilaya) {
+        formData.message = "⚠️ الرجاء اختيار الولاية";
+        formData.messageType = "error";
+        render();
+        return;
+    }
 
-function escapeHtml(str) {
-    if (!str) return "";
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
+    formData.loading = true;
+    render();
+
+    const shipping = getShippingPrice(formData.wilaya, formData.delivery);
+    const total = finalPrice + shipping;
+
+    const ok = await sendToTelegram({
+        firstName: formData.firstName,
+        lastName: formData.lastName || "",
+        phone: formData.phone,
+        state: formData.wilaya,
+        deliveryType: formData.delivery,
+        shipping: shipping,
+        total: total,
+        finalPrice: finalPrice,
+        productName: PRODUCT.name
     });
+
+    formData.loading = false;
+
+    if (ok) {
+        formData.message = "✅ تم إرسال طلبك بنجاح! سيتصل بك الدعم قريباً";
+        formData.messageType = "success";
+        formData.firstName = "";
+        formData.lastName = "";
+        formData.phone = "";
+        formData.wilaya = "";
+        formData.delivery = "office";
+    } else {
+        formData.message = "❌ فشل الإرسال. يرجى المحاولة مرة أخرى";
+        formData.messageType = "error";
+    }
+
+    render();
 }
 
-window.handleImageError = handleImageError;
-
-// عرض تعليمات الإعداد في وحدة التحكم
-logBotSetupInstructions();
-
-// بدء التطبيق
 render();
 </script>
 
