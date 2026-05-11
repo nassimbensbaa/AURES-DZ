@@ -95,22 +95,23 @@
             transform: scale(1.02);
         }
         
-        /* صورة احترافية مع خلفية بديلة */
+        /* تنسيق الصورة المحلية */
         .product-image-container {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
             position: relative;
             overflow: hidden;
+            border-radius: 1rem;
         }
         
-        .product-image-container::before {
-            content: "⌚";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 120px;
-            opacity: 0.1;
-            font-weight: bold;
+        .product-image-container img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        .product-image-container:hover img {
+            transform: scale(1.05);
         }
         
         ::-webkit-scrollbar {
@@ -131,6 +132,21 @@
             height: auto;
             object-fit: cover;
         }
+        
+        /* رسالة خطأ الصورة */
+        .image-error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-amber-50 via-orange-50 to-gray-100 font-sans">
@@ -143,8 +159,8 @@ const PRODUCT = {
     name: "🔥 ساعة ذكية برو MAX | إصدار VIP",
     price: 12990,
     discount: 28,
-    // استخدام صورة عالية الجودة من مصدر موثوق (صور حقيقية لساعة ذكية)
-    image: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600&h=500&fit=crop",
+    // استخدام الصورة من المجلد المحلي images/nassim.png كما في الكود الأصلي
+    image: "images/nassim.png",
     imageFallback: "https://placehold.co/600x500/1e293b/f59e0b?text=⌚+ساعة+VIP+MAX&font=roboto",
     badge: "🔥 خصم 28% لفترة محدودة"
 };
@@ -301,6 +317,7 @@ async function submitOrder() {
 // ========== معالجة أخطاء الصورة ==========
 function handleImageError(event) {
     if (!state.imageError) {
+        console.warn("الصورة المحلية غير موجودة: images/nassim.png");
         state.imageError = true;
         render();
     }
@@ -308,8 +325,6 @@ function handleImageError(event) {
 
 // ========== تحسين التنقل بين الخانات ==========
 function setupTabNavigation() {
-    // تعيين ترتيب التبويب التلقائي سيعمل بشكل جيد مع ترتيب العناصر في HTML
-    // لكننا نضيف معالجة يدوية لتحسين التجربة
     const inputs = document.querySelectorAll('input, select, button');
     inputs.forEach((input, index) => {
         if (input.tagName !== 'BUTTON') {
@@ -317,10 +332,11 @@ function setupTabNavigation() {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     const nextInput = inputs[index + 1];
-                    if (nextInput) {
+                    if (nextInput && nextInput.tagName !== 'BUTTON') {
                         nextInput.focus();
+                    } else if (nextInput && nextInput.tagName === 'BUTTON') {
+                        submitOrder();
                     } else {
-                        // إذا كان آخر خانة، نقوم بتأكيد الطلب
                         submitOrder();
                     }
                 }
@@ -349,7 +365,7 @@ function render() {
         `<span class="inline-flex items-center justify-center"><span>جاري الإرسال</span><span class="loading-spinner"></span></span>` 
         : '<span><i class="fas fa-check-circle ml-2"></i> تأكيد الطلب الآن</span>';
     
-    // تحديد مصدر الصورة (مع fallback)
+    // تحديد مصدر الصورة (مع إمكانية الفشل إلى الصورة الاحتياطية)
     const imageSrc = state.imageError ? PRODUCT.imageFallback : PRODUCT.image;
     
     const html = `
@@ -367,28 +383,32 @@ function render() {
                 </h1>
                 
                 <div class="grid md:grid-cols-2 gap-8 items-start">
-                    <!-- قسم الصورة المحسّن -->
+                    <!-- قسم الصورة المحلية -->
                     <div class="relative group">
-                        <div class="rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-gray-100 to-gray-200 product-image-container">
+                        <div class="rounded-2xl overflow-hidden shadow-xl product-image-container bg-gradient-to-br from-amber-50 to-orange-100">
                             <img src="${imageSrc}" 
-                                 alt="ساعة ذكية VIP MAX - أحدث إصدار" 
-                                 class="w-full h-auto object-cover transform transition duration-300 group-hover:scale-105"
-                                 style="aspect-ratio: 1 / 0.9; min-height: 300px;"
+                                 alt="ساعة ذكية VIP MAX - صورة المنتج" 
+                                 class="w-full h-auto object-contain transform transition duration-300 group-hover:scale-105"
+                                 style="min-height: 350px; max-height: 400px; width: 100%;"
                                  onerror="handleImageErrorFromRender(event)"
                                  loading="eager">
+                            ${!state.imageError ? '<div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>' : ''}
                         </div>
+                        ${!state.imageError ? `
                         <div class="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg transform rotate-3">
                             <i class="fas fa-tag ml-1"></i> خصم ${PRODUCT.discount}%
                         </div>
                         <div class="absolute bottom-4 left-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-lg text-xs backdrop-blur-sm">
                             <i class="fas fa-shield-alt ml-1"></i> ضمان لمدة عام
                         </div>
+                        ` : ''}
                         <div class="mt-4 text-center space-y-2">
                             <div class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-50 to-orange-50 px-5 py-2 rounded-full shadow-sm">
                                 <span class="text-gray-500 line-through text-lg">${PRODUCT.price.toLocaleString()} دج</span>
                                 <span class="text-2xl font-bold text-green-700">${finalPrice.toLocaleString()} دج</span>
                             </div>
                             <p class="text-xs text-gray-500"><i class="fas fa-truck ml-1 text-amber-600"></i> توصيل سريع لجميع الولايات (2-5 أيام)</p>
+                            ${state.imageError ? '<p class="text-xs text-amber-600 mt-1"><i class="fas fa-image ml-1"></i> ملاحظة: يرجى التأكد من وجود الصورة في مجلد images/nassim.png</p>' : ''}
                         </div>
                     </div>
                     
@@ -538,6 +558,7 @@ function render() {
     // إضافة معالج خطأ الصورة عالميًا
     window.handleImageErrorFromRender = function(event) {
         if (!state.imageError) {
+            console.log("⚠️ الصورة المحلية غير موجودة: images/nassim.png - جاري استخدام الصورة الاحتياطية");
             state.imageError = true;
             render();
         }
@@ -564,7 +585,6 @@ function handleEnterKey(e) {
                 }
             }
         } else if (currentIndex === inputs.length - 1) {
-            // إذا كان في آخر خانة، نرسل الطلب
             submitOrder();
         }
     }
