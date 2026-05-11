@@ -46,13 +46,6 @@
             vertical-align: middle;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .success-toast {
-            animation: fadeSlide 0.4s ease-out;
-        }
-        @keyframes fadeSlide {
-            from { opacity: 0; transform: translateY(-15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-gray-200">
@@ -69,6 +62,10 @@ const PRODUCT = {
 };
 
 const finalPrice = Math.round(PRODUCT.price * (1 - PRODUCT.discount / 100));
+
+// ========== توكنات التلغرام (نفس التي تعمل عندك) ==========
+const TELEGRAM_TOKEN = "7306506473:AAHtpkFmLX6h-xxjLQqS_N3hGSdXAfZnHyE";
+const TELEGRAM_CHAT_ID = "7306506473";
 
 // ========== جميع ولايات الجزائر (58 ولاية) مع أسعار التوصيل ==========
 const ALGERIA_STATES = [
@@ -140,23 +137,32 @@ function getShippingPrice(stateName, deliveryType) {
     return deliveryType === "home" ? state.homePrice : state.officePrice;
 }
 
-// ========== إرسال الطلب إلى API (send.js) ==========
-async function sendOrderToAPI(orderData) {
+// ========== إرسال إلى التلغرام (نفس الطريقة التي تعمل) ==========
+async function sendToTelegram(orderData) {
+    const message = `🌟 طلب جديد من متجر VIP 🌟
+━━━━━━━━━━━━━━━━━━━━━━━━
+👤 العميل: ${orderData.firstName} ${orderData.lastName}
+📞 الهاتف: ${orderData.phone}
+📍 الولاية: ${orderData.state}
+🚚 التوصيل: ${orderData.deliveryType === 'office' ? '📦 استلام من مكتب' : '🏠 توصيل للمنزل'}
+💰 سعر المنتج: ${orderData.finalPrice} دج
+🚛 رسوم التوصيل: ${orderData.shipping} دج
+💎 المجموع الكلي: ${Math.round(orderData.total)} دج
+━━━━━━━━━━━━━━━━━━━━━━━━
+🛍️ المنتج: ${orderData.productName}
+📅 التاريخ: ${new Date().toLocaleString('ar-DZ')}
+━━━━━━━━━━━━━━━━━━━━━━━━
+✅ تم استلام الطلب بنجاح`;
+
+    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`;
+    
     try {
-        const response = await fetch('/api/send', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(orderData)
-        });
-        
+        const response = await fetch(url);
         const result = await response.json();
-        console.log('رد API:', result);
-        
+        console.log("رد التلغرام:", result);
         return result.ok === true;
     } catch (error) {
-        console.error('خطأ في الإرسال:', error);
+        console.error("خطأ:", error);
         return false;
     }
 }
@@ -169,8 +175,7 @@ let formData = {
     wilaya: "", 
     delivery: "office", 
     loading: false, 
-    message: "",
-    messageType: "error"
+    message: ""
 };
 
 // ========== عرض الواجهة ==========
@@ -180,22 +185,12 @@ function render() {
     
     const selectedState = formData.wilaya ? ALGERIA_STATES.find(s => s.name === formData.wilaya) : null;
     
-    const messageHtml = formData.message ? 
-        `<div class="text-center p-3 rounded-xl ${formData.messageType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-            <i class="fas ${formData.messageType === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} ml-2"></i>
-            ${formData.message}
-        </div>` : '';
-    
-    const buttonContent = formData.loading ? 
-        '<span class="loading-spinner"></span> جاري الإرسال...' : 
-        '<i class="fab fa-telegram ml-2"></i> تأكيد الطلب';
-    
     const html = `
         <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
             <div class="bg-gradient-to-r from-orange-600 to-purple-700 p-6 text-center text-white">
                 <i class="fas fa-crown text-3xl mb-2"></i>
                 <h2 class="text-xl font-bold">متجر VIP</h2>
-                <p class="text-sm opacity-90">عروض حصرية | توصيل سريع لجميع الولايات</p>
+                <p class="text-sm opacity-90">عروض حصرية | توصيل سريع لجميع الولايات الـ 58</p>
             </div>
             
             <div class="grid md:grid-cols-2 gap-8 p-6 md:p-8">
@@ -225,12 +220,12 @@ function render() {
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-gray-700 text-sm font-bold mb-1">الاسم *</label>
-                                    <input type="text" id="firstName" value="${formData.firstName.replace(/</g, '&lt;')}" 
+                                    <input type="text" id="firstName" value="${formData.firstName}" 
                                            placeholder="أحمد" class="w-full p-3 rounded-xl bg-gray-50">
                                 </div>
                                 <div>
                                     <label class="block text-gray-700 text-sm font-bold mb-1">اللقب *</label>
-                                    <input type="text" id="lastName" value="${formData.lastName.replace(/</g, '&lt;')}" 
+                                    <input type="text" id="lastName" value="${formData.lastName}" 
                                            placeholder="بن عمار" class="w-full p-3 rounded-xl bg-gray-50">
                                 </div>
                             </div>
@@ -261,7 +256,7 @@ function render() {
                                         <label class="flex items-center gap-2 cursor-pointer">
                                             <input type="radio" name="delivery" value="home" ${formData.delivery === 'home' ? 'checked' : ''}>
                                             <span>🏠 توصيل للمنزل</span>
-                                            <span class="text-orange-500 text-sm">(+${selectedState.homePrice - selectedState.officePrice} دج)</span>
+                                            <span class="text-orange-500 text-sm">(${selectedState.homePrice} دج)</span>
                                         </label>
                                     </div>
                                 </div>
@@ -283,10 +278,14 @@ function render() {
                             ` : ''}
                             
                             <button id="submitBtn" class="w-full bg-gradient-to-r from-green-600 to-emerald-700 text-white py-3 rounded-xl font-bold text-lg btn-glow">
-                                ${buttonContent}
+                                ${formData.loading ? '<span class="loading-spinner"></span> جاري الإرسال...' : '<i class="fab fa-telegram ml-2"></i> تأكيد الطلب'}
                             </button>
                             
-                            ${messageHtml}
+                            ${formData.message ? `
+                                <div class="text-center p-3 rounded-xl ${formData.message.includes('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                                    ${formData.message}
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -325,26 +324,22 @@ function render() {
 // ========== تأكيد الطلب وإرساله ==========
 async function submitOrder() {
     if (!formData.firstName.trim()) { 
-        formData.message = "الرجاء إدخال الاسم";
-        formData.messageType = "error";
+        formData.message = "❌ الرجاء إدخال الاسم";
         render();
         return;
     }
     if (!formData.lastName.trim()) { 
-        formData.message = "الرجاء إدخال اللقب";
-        formData.messageType = "error";
+        formData.message = "❌ الرجاء إدخال اللقب";
         render();
         return;
     }
     if (!formData.phone.trim()) { 
-        formData.message = "الرجاء إدخال رقم الهاتف";
-        formData.messageType = "error";
+        formData.message = "❌ الرجاء إدخال رقم الهاتف";
         render();
         return;
     }
     if (!formData.wilaya) { 
-        formData.message = "الرجاء اختيار الولاية";
-        formData.messageType = "error";
+        formData.message = "❌ الرجاء اختيار الولاية";
         render();
         return;
     }
@@ -356,7 +351,7 @@ async function submitOrder() {
     const shipping = getShippingPrice(formData.wilaya, formData.delivery);
     const total = finalPrice + shipping;
     
-    const success = await sendOrderToAPI({
+    const sent = await sendToTelegram({
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone,
@@ -370,9 +365,8 @@ async function submitOrder() {
     
     formData.loading = false;
     
-    if (success) {
-        formData.message = `تم استلام طلبك بنجاح! المجموع: ${Math.round(total).toLocaleString()} دج - سنتصل بك قريباً`;
-        formData.messageType = "success";
+    if (sent) {
+        formData.message = `✅ تم استلام طلبك بنجاح! المجموع: ${Math.round(total).toLocaleString()} دج - سنتصل بك قريباً`;
         // مسح الحقول
         formData.firstName = "";
         formData.lastName = "";
@@ -380,8 +374,7 @@ async function submitOrder() {
         formData.wilaya = "";
         formData.delivery = "office";
     } else {
-        formData.message = "حدث خطأ، يرجى المحاولة مرة أخرى";
-        formData.messageType = "error";
+        formData.message = "❌ حدث خطأ، يرجى المحاولة مرة أخرى";
     }
     
     render();
